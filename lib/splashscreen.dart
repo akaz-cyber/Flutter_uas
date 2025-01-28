@@ -11,7 +11,9 @@ class _SplashscreenState extends State<Splashscreen> {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      body: Text("halo semua"),
+      body:Center(
+       child: Text("hallo dunia"),
+      ) 
     );
   }
 }
