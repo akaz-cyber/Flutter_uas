@@ -12,7 +12,7 @@ class _SplashscreenState extends State<Splashscreen> {
   Widget build(BuildContext context) {
     return const Scaffold(
       body:Center(
-       child: Text("hallo dunia"),
+       child: Text("hallo dunia "),
       ) 
     );
   }
