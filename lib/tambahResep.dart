@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class Tambahresep extends StatefulWidget {
   const Tambahresep({super.key});
@@ -8,14 +11,41 @@ class Tambahresep extends StatefulWidget {
 }
 
 class _TambahresepState extends State<Tambahresep> {
+  File? _imageFile;
+  List<File?> stepImages = [];
   List<TextEditingController> ingredientsControllers = [];
   List<TextEditingController> stepsControllers = [];
+
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickedFile =
+        await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<void> _pickStepImage(int index) async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickedFile =
+        await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        stepImages[index] = File(pickedFile.path);
+      });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    ingredientsControllers.add(TextEditingController()); // Tambah 1 bahan awal
-    stepsControllers.add(TextEditingController()); // Tambah 1 langkah awal
+    ingredientsControllers.add(TextEditingController());
+    stepsControllers.add(TextEditingController());
+    stepImages.add(null); // Inisialisasi pertama kali
   }
 
   @override
@@ -45,6 +75,7 @@ class _TambahresepState extends State<Tambahresep> {
   void addStep() {
     setState(() {
       stepsControllers.add(TextEditingController());
+      stepImages.add(null);
     });
   }
 
@@ -52,6 +83,7 @@ class _TambahresepState extends State<Tambahresep> {
     setState(() {
       stepsControllers[index].dispose();
       stepsControllers.removeAt(index);
+      stepImages.removeAt(index);
     });
   }
 
@@ -72,21 +104,36 @@ class _TambahresepState extends State<Tambahresep> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Image Upload
-              Container(
-                width: double.infinity,
-                height: 180,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.blue, width: 2),
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.image_outlined, size: 40, color: Colors.black54),
-                    SizedBox(height: 8),
-                    Text("Recipe’s photo", style: TextStyle(color: Colors.black54)),
-                  ],
+              GestureDetector(
+                onTap: _pickImage,
+                child: Container(
+                  width: double.infinity,
+                  height: 180,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.blue, width: 2),
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: _imageFile == null
+                      ? const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.image_outlined,
+                                size: 40, color: Colors.black54),
+                            SizedBox(height: 8),
+                            Text("photo",
+                                style: TextStyle(color: Colors.black54)),
+                          ],
+                        )
+                      : ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.file(
+                            _imageFile!,
+                            width: double.infinity,
+                            height: 180,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -97,36 +144,15 @@ class _TambahresepState extends State<Tambahresep> {
               const TextField(
                 decoration: InputDecoration(
                   hintText: "Masukkan judul",
-                  border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Description
-              const Text("Description", style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              const TextField(
-                decoration: InputDecoration(
-                  hintText: "Masukkan deskripsi",
-                  border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
-                ),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 20),
-
-              // Serve
-              const Text("Serve", style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              const TextField(
-                decoration: InputDecoration(
-                    hintText: "2",
-                  border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(8))),
                 ),
               ),
               const SizedBox(height: 20),
 
               // Ingredients
-              const Text("Ingredients", style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text("Ingredients",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
 
               Column(
@@ -141,7 +167,8 @@ class _TambahresepState extends State<Tambahresep> {
                             decoration: const InputDecoration(
                               hintText: "Masukkan bahan",
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(8)),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(8)),
                               ),
                             ),
                           ),
@@ -160,7 +187,8 @@ class _TambahresepState extends State<Tambahresep> {
               TextButton.icon(
                 onPressed: addIngredient,
                 icon: const Icon(Icons.add, color: Colors.black),
-                label: const Text("Add more ingredient", style: TextStyle(color: Colors.black)),
+                label: const Text("Add more ingredient",
+                    style: TextStyle(color: Colors.black)),
               ),
 
               const SizedBox(height: 20),
@@ -181,13 +209,13 @@ class _TambahresepState extends State<Tambahresep> {
                             decoration: const InputDecoration(
                               hintText: "Masukkan langkah",
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(8)),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(8)),
                               ),
                             ),
                           ),
                         ),
                         const SizedBox(width: 8),
-                        // Upload Image Button
                         Container(
                           width: 50,
                           height: 50,
@@ -195,15 +223,25 @@ class _TambahresepState extends State<Tambahresep> {
                             border: Border.all(color: Colors.grey),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: IconButton(
-                            icon: const Icon(Icons.image, color: Colors.grey),
-                            onPressed: () {
-                              // Tambahkan fungsi upload gambar 
-                            },
-                          ),
+                          child: stepImages[index] == null
+                              ? IconButton(
+                                  icon: const Icon(Icons.image, color: Colors.grey),
+                                  onPressed: () => _pickStepImage(index),
+                                )
+                              : GestureDetector(
+                                  onTap: () => _pickStepImage(index),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.file(
+                                      stepImages[index]!,
+                                      width: 50,
+                                      height: 50,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
                         ),
                         const SizedBox(width: 8),
-                        // Delete Step Button
                         IconButton(
                           icon: const Icon(Icons.delete, color: Colors.red),
                           onPressed: () => removeStep(index),
@@ -217,7 +255,8 @@ class _TambahresepState extends State<Tambahresep> {
               TextButton.icon(
                 onPressed: addStep,
                 icon: const Icon(Icons.add, color: Colors.black),
-                label: const Text("Add more step", style: TextStyle(color: Colors.black)),
+                label: const Text("Add more step",
+                    style: TextStyle(color: Colors.black)),
               ),
 
               const SizedBox(height: 20),
@@ -227,25 +266,12 @@ class _TambahresepState extends State<Tambahresep> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   OutlinedButton(
-                    onPressed: () {
-                      // Tambahkan aksi untuk save
-                    },
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      side: const BorderSide(color: Colors.orange),
-                    ),
+                    onPressed: () {},
                     child: const Text("Save", style: TextStyle(color: Colors.orange)),
                   ),
                   ElevatedButton(
-                    onPressed: () {
-                      // Tambahkan aksi untuk publish
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
                     child: const Text("Publish", style: TextStyle(color: Colors.white)),
                   ),
                 ],
