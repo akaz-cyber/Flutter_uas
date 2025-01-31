@@ -139,7 +139,8 @@ class _TambahresepState extends State<Tambahresep> {
               const SizedBox(height: 20),
 
               // Title
-              const Text("Title", style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text("Title",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               const TextField(
                 decoration: InputDecoration(
@@ -194,7 +195,8 @@ class _TambahresepState extends State<Tambahresep> {
               const SizedBox(height: 20),
 
               // Steps
-              const Text("Steps", style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text("Steps",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
 
               Column(
@@ -225,7 +227,8 @@ class _TambahresepState extends State<Tambahresep> {
                           ),
                           child: stepImages[index] == null
                               ? IconButton(
-                                  icon: const Icon(Icons.image, color: Colors.grey),
+                                  icon: const Icon(Icons.image,
+                                      color: Colors.grey),
                                   onPressed: () => _pickStepImage(index),
                                 )
                               : GestureDetector(
@@ -266,13 +269,30 @@ class _TambahresepState extends State<Tambahresep> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   OutlinedButton(
-                    onPressed: () {},
-                    child: const Text("Save", style: TextStyle(color: Colors.orange)),
+                    onPressed: () {
+          
+                    },
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 50, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      side: const BorderSide(color: Colors.orange),
+                    ),
+                    child: const Text("Save",
+                        style: TextStyle(color: Colors.orange)),
                   ),
                   ElevatedButton(
                     onPressed: () {},
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-                    child: const Text("Publish", style: TextStyle(color: Colors.white)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 50, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                    ),
+                    child: const Text("Publish",
+                        style: TextStyle(color: Colors.white)),
                   ),
                 ],
               ),
