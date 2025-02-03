@@ -45,7 +45,7 @@ class _TambahresepState extends State<Tambahresep> {
     super.initState();
     ingredientsControllers.add(TextEditingController());
     stepsControllers.add(TextEditingController());
-    stepImages.add(null); // Inisialisasi pertama kali
+    stepImages.add(null);
   }
 
   @override
@@ -91,11 +91,13 @@ class _TambahresepState extends State<Tambahresep> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        
         title: const Text("Recipe"),
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.black),
+       
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -269,9 +271,7 @@ class _TambahresepState extends State<Tambahresep> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   OutlinedButton(
-                    onPressed: () {
-          
-                    },
+                    onPressed: () {},
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 50, vertical: 12),
