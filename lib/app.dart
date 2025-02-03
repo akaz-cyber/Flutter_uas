@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:uas_flutter/global_components/nav_bar_component.dart';
+import 'package:uas_flutter/screens/home/home_screen.dart';
 import 'package:uas_flutter/screens/utility/welcome_screen.dart';
 
 class App extends StatelessWidget {
@@ -12,7 +14,7 @@ class App extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home: const WelcomeScreen(),
+      home: const BottomNavbar(),
     );
   }
 }

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class Saveresep extends StatefulWidget {
-  const Saveresep({super.key});
+class BookmarkedRecipeScreen extends StatefulWidget {
+  const BookmarkedRecipeScreen({super.key});
 
   @override
-  State<Saveresep> createState() => _SaveresepState();
+  State<BookmarkedRecipeScreen> createState() => _BookmarkedRecipeScreenState();
 }
 
-class _SaveresepState extends State<Saveresep> {
+class _BookmarkedRecipeScreenState extends State<BookmarkedRecipeScreen> {
   final List<Map<String, String>> recipes = [
     {
       "title": "Traditional spare ribs baked",

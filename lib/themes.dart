@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-Color backgroundColor = const Color(0xFFE5E5E5); 
-Color whiteColor = const Color(0xFDFDFDFD);
+Color backgroundPrimary = const Color.fromARGB(255, 250, 125, 42); 
+Color backgroundSecondary = const Color(0xEEEEEEEE); 
+
+Color whiteColor = const Color(0xFFFFFFFF);
+Color whiteColor1 = const Color(0xFDFDFDFD);
 Color whiteColor2 = const Color.fromARGB(255, 243, 243, 243);
-Color blackColor = const Color(0XFF2D2D2D);
-Color blackColor2 = const Color(0XFF000000);
-Color grayColor = const Color(0xFFBDBDBD);
+
+Color grayColor = const Color(0xFF6A6A6A);
 Color grayColorSearchField = const Color (0xFFF8F8F8);
-Color greenColor = const Color.fromARGB(255, 9, 111, 139);
-Color grayColorRecentBook = const Color(0xFFAFAFAF);
-Color grayColorInfo = const Color(0xFFF7F7F7);
-Color dividerColor = const Color (0xFF6B6B6B);
-Color borderColorRecentBook = const Color.fromARGB(243, 209, 209, 209);
+
+
 Color transparentColor = Colors.transparent;
 
 // SEMIBOLD TEXT
@@ -31,6 +30,11 @@ TextStyle mediumText14 =  GoogleFonts.poppins(fontSize: 14, fontWeight: medium);
 TextStyle mediumText12 =  GoogleFonts.poppins(color: grayColor, fontWeight: medium);
 TextStyle mediumText10 =  GoogleFonts.poppins(fontSize: 10, fontWeight: medium);
 
+// LIGHT TEXT
+TextStyle lightText14 =  GoogleFonts.poppins(fontSize: 14, fontWeight: light);
+TextStyle lightText12 =  GoogleFonts.poppins(color: grayColor, fontWeight: light);
+TextStyle lightText10 =  GoogleFonts.poppins(fontSize: 10, fontWeight: light);
+TextStyle lightText6 =  GoogleFonts.poppins(fontSize: 6, fontWeight: light);
 
 FontWeight light = FontWeight.w300;
 FontWeight regular = FontWeight.w400;
