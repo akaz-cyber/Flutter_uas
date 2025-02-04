@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:uas_flutter/screens/recipe/add_new_recipe_screen.dart';
 import 'package:uas_flutter/global_components/bookmark_card_recipe.dart';
+import 'package:uas_flutter/global_components/header_button_component.dart';
+import 'package:uas_flutter/themes.dart';
 
 class BookmarkedRecipeScreen extends StatefulWidget {
   const BookmarkedRecipeScreen({super.key});
@@ -40,12 +41,9 @@ class _BookmarkedRecipeScreenState extends State<BookmarkedRecipeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Saved recipes"),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black),
+      backgroundColor: whiteColor,
+      appBar: const HeaderButtonComponent(
+        title: 'Saved Recipes',
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -75,14 +73,6 @@ class _BookmarkedRecipeScreenState extends State<BookmarkedRecipeScreen> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) =>Tambahresep()));
-        },
-        backgroundColor: Colors.orange,
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

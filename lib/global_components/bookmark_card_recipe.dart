@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uas_flutter/themes.dart';
 
 class RecipeCard extends StatelessWidget {
   final String title;
@@ -31,7 +32,7 @@ class RecipeCard extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
-                colors: [Colors.black.withOpacity(0.6), Colors.transparent],
+                colors: [Colors.black.withOpacity(0.8), Colors.transparent],
               ),
             ),
           ),
@@ -39,20 +40,20 @@ class RecipeCard extends StatelessWidget {
             bottom: 20,
             left: 10,
             right: 10,
-            child: Text(
-              title,
-              style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.bold),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          Positioned(
-            bottom: 5,
-            left: 10,
-            child: Text(
-              "By $author",
-              style: const TextStyle(color: Colors.white70, fontSize: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: semiBoldText16.copyWith(color: whiteColor),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  "By $author",
+                  style: regularText14.copyWith(color: whiteColor),
+                ),
+              ],
             ),
           ),
         ],
