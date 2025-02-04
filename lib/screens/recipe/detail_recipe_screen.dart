@@ -40,7 +40,7 @@ class _DetailresepState extends State<Detailresep> {
                     ),
                   ),
 
-                  // Ikon panah ke kiri (posisi di dalam container)
+                  // Ikon panah ke kiri (
                   Positioned(
                     top: 10,
                     left: 10,
@@ -103,9 +103,9 @@ class _DetailresepState extends State<Detailresep> {
               const Row(
                 children: [
                   CircleAvatar(
-                    backgroundColor: Colors.grey, // Jika tidak ada gambar profil
+                    backgroundColor: Colors.grey, 
                     radius: 16,
-                    child: Icon(Icons.person, color: Colors.white), // Placeholder
+                    child: Icon(Icons.person, color: Colors.white), 
                   ),
                   SizedBox(width: 8),
                   Text(
