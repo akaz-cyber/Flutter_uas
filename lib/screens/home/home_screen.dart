@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uas_flutter/global_components/recipe_card_item_component.dart';
 import 'package:uas_flutter/global_components/recipe_card_item_bg_component.dart';
+import 'package:uas_flutter/screens/recipe/add_new_recipe_screen.dart';
 import 'package:uas_flutter/themes.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -44,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(width: 8),
             Container(
-              width: 50,
+              width: 49,
               height: 50,
               decoration: const BoxDecoration(
                 shape: BoxShape.rectangle,
@@ -188,6 +189,15 @@ class _HomeScreenState extends State<HomeScreen> {
           listFeaturedBookSection(),
         ],
       ),
+       floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) =>Tambahresep()));
+        },
+        backgroundColor: Colors.orange,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
+    
