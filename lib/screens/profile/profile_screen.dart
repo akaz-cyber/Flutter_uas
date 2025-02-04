@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:uas_flutter/edit_profile.dart';
+import 'package:uas_flutter/global_components/header_button_component.dart';
 import 'package:uas_flutter/global_components/recipe_card_component.dart';
 import 'package:uas_flutter/screens/home/home_screen.dart';
+import 'package:uas_flutter/screens/profile/edit_profile_screen.dart';
+import 'package:uas_flutter/themes.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -14,8 +16,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Account"),
+      backgroundColor: whiteColor,
+      appBar: HeaderButtonComponent(
+        title: "Account",
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -43,17 +46,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       "https://static.promediateknologi.id/crop/0x0:0x0/0x0/webp/photo/p2/233/2024/04/28/Rendang-206972355.jpg"),
                 ),
                 const SizedBox(width: 10),
-                const Column(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       "Sigit Rendang",
                       style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          semiBoldText16.copyWith(fontWeight: FontWeight.bold),
                     ),
                     Text(
                       "Penikmat rendang",
-                      style: TextStyle(color: Colors.grey),
+                      style: regularText14,
                     ),
                   ],
                 ),
@@ -62,16 +65,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onPressed: () {
                     // Tambahkan fungsi logout
                   },
-                  child: const Text("Logout"),
+                  child: Text("Logout",
+                      style: semiBoldText14.copyWith(color: grayColor)),
                 ),
               ],
             ),
+            const SizedBox(height: 30),
+            Text("Your Recipes", style: semiBoldText20),
+
             const SizedBox(height: 20),
-            const Text(
-              "Your Recipes",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
             // Daftar Resep dalam Grid
             Expanded(
               child: GridView.builder(
@@ -89,11 +91,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ],
         ),
-      ),
-      // Tombol Tambah Resep
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: const Icon(Icons.add),
       ),
     );
   }

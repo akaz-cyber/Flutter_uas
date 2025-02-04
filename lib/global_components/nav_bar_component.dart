@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:uas_flutter/screens/bookmark/bookmarked_recipe_screen.dart';
 import 'package:uas_flutter/screens/home/home_screen.dart';
 import 'package:uas_flutter/screens/profile/profile_screen.dart';
+import 'package:uas_flutter/screens/recipe/add_new_recipe_screen.dart';
 import 'package:uas_flutter/screens/search/search_recipe_screen.dart';
 import 'package:uas_flutter/themes.dart';
 
@@ -39,9 +40,7 @@ class _BottomNavbarState extends State<BottomNavbar> {
                 margin: const EdgeInsets.only(top: 15),
                 child: Image.asset('assets/icons/home.png',
                     width: 24,
-                    color: _selectedIndex == 0
-                        ? backgroundPrimary
-                        : grayColor),
+                    color: _selectedIndex == 0 ? backgroundPrimary : grayColor),
               ),
               label: '',
             ),
@@ -50,9 +49,7 @@ class _BottomNavbarState extends State<BottomNavbar> {
                 margin: const EdgeInsets.only(top: 15),
                 child: Image.asset('assets/icons/search.png',
                     width: 24,
-                    color: _selectedIndex == 1
-                        ? backgroundPrimary
-                        : grayColor),
+                    color: _selectedIndex == 1 ? backgroundPrimary : grayColor),
               ),
               label: '',
             ),
@@ -61,9 +58,7 @@ class _BottomNavbarState extends State<BottomNavbar> {
                 margin: const EdgeInsets.only(top: 15),
                 child: Image.asset('assets/icons/bookmark.png',
                     width: 24,
-                    color: _selectedIndex == 2
-                        ? backgroundPrimary
-                        : grayColor),
+                    color: _selectedIndex == 2 ? backgroundPrimary : grayColor),
               ),
               label: '',
             ),
@@ -72,9 +67,7 @@ class _BottomNavbarState extends State<BottomNavbar> {
                 margin: const EdgeInsets.only(top: 15),
                 child: Image.asset('assets/icons/profile.png',
                     width: 24,
-                    color: _selectedIndex == 3
-                        ? backgroundPrimary
-                        : grayColor),
+                    color: _selectedIndex == 3 ? backgroundPrimary : grayColor),
               ),
               label: '',
             )
@@ -96,6 +89,15 @@ class _BottomNavbarState extends State<BottomNavbar> {
             .values
             .toList(),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const Tambahresep()));
+        },
+        backgroundColor: backgroundPrimary,
+        child: Icon(Icons.add, color: whiteColor),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

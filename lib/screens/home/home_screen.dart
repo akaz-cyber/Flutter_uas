@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:uas_flutter/global_components/recipe_card_item_component.dart';
 import 'package:uas_flutter/global_components/recipe_card_item_bg_component.dart';
 import 'package:uas_flutter/screens/recipe/add_new_recipe_screen.dart';
+import 'package:uas_flutter/global_components/search_text_field_component.dart';
 import 'package:uas_flutter/themes.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -63,37 +64,8 @@ class _HomeScreenState extends State<HomeScreen> {
     Widget searchFieldSection() {
       return Container(
         margin: const EdgeInsets.symmetric(horizontal: 30),
-        child: TextField(
-          decoration: InputDecoration(
-              hintText: 'Find Your Bookmarked Book',
-              hintStyle: mediumText12.copyWith(color: grayColor),
-              fillColor: grayColorSearchField,
-              filled: true,
-              border: const OutlineInputBorder(
-                borderSide: BorderSide.none,
-                borderRadius: BorderRadius.all(
-                  Radius.circular(12),
-                ),
-              ),
-              isCollapsed: true,
-              contentPadding: const EdgeInsets.all(18),
-              suffixIcon: InkWell(
-                onTap: () {},
-                child: Container(
-                  padding: const EdgeInsets.all(13),
-                  decoration: BoxDecoration(
-                    color: backgroundPrimary,
-                    borderRadius: const BorderRadius.all(
-                      Radius.circular(12),
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.search_rounded,
-                    color: whiteColor,
-                  ),
-                ),
-              )),
-        ),
+        child: const SearchTextFieldComponent(
+            hintText: 'Search your favorite recipe'),
       );
     }
 
@@ -189,15 +161,6 @@ class _HomeScreenState extends State<HomeScreen> {
           listFeaturedBookSection(),
         ],
       ),
-       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) =>Tambahresep()));
-        },
-        backgroundColor: Colors.orange,
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
-    

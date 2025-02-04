@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:uas_flutter/global_components/nav_bar_component.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -97,7 +98,13 @@ class WelcomeScreen extends StatelessWidget {
           ),
           padding: const EdgeInsets.symmetric(vertical: 15),
         ),
-        onPressed: () {},
+        onPressed: () {
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const BottomNavbar(),
+              ));
+        },
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(

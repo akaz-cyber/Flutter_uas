@@ -2,6 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:uas_flutter/global_components/header_button_component.dart';
+import 'package:uas_flutter/global_components/textfield_component.dart';
+import 'package:uas_flutter/themes.dart';
 
 class Tambahresep extends StatefulWidget {
   const Tambahresep({super.key});
@@ -15,6 +18,7 @@ class _TambahresepState extends State<Tambahresep> {
   List<File?> stepImages = [];
   List<TextEditingController> ingredientsControllers = [];
   List<TextEditingController> stepsControllers = [];
+  final TextEditingController titleController = TextEditingController();
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -50,6 +54,7 @@ class _TambahresepState extends State<Tambahresep> {
 
   @override
   void dispose() {
+    titleController.dispose();
     for (var controller in ingredientsControllers) {
       controller.dispose();
     }
@@ -87,21 +92,39 @@ class _TambahresepState extends State<Tambahresep> {
     });
   }
 
+  void _publishRecipe() {
+    final title = titleController.text;
+    final ingredients =
+        ingredientsControllers.map((controller) => controller.text).toList();
+    final steps =
+        stepsControllers.map((controller) => controller.text).toList();
+
+    print('Title: $title');
+    print('Ingredients: $ingredients');
+    print('Steps: $steps');
+    if (_imageFile != null) {
+      print('Main Image: ${_imageFile!.path}');
+    }
+    for (int i = 0; i < stepImages.length; i++) {
+      if (stepImages[i] != null) {
+        print('Step ${i + 1} Image: ${stepImages[i]!.path}');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        
-        title: const Text("Recipe"),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black),
-       
-      ),
+      backgroundColor: whiteColor,
+      appBar: HeaderButtonComponent(
+          title: "Add New Recipe",
+          leadingIcon: const Icon(Icons.arrow_back),
+          onLeadingIconPressed: () {
+            Navigator.pop(context);
+          }),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -112,19 +135,18 @@ class _TambahresepState extends State<Tambahresep> {
                   width: double.infinity,
                   height: 180,
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.blue, width: 2),
+                    border: Border.all(color: grayColor, width: 2),
                     color: Colors.grey[200],
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: _imageFile == null
-                      ? const Column(
+                      ? Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.image_outlined,
+                            const Icon(Icons.image_outlined,
                                 size: 40, color: Colors.black54),
-                            SizedBox(height: 8),
-                            Text("photo",
-                                style: TextStyle(color: Colors.black54)),
+                            const SizedBox(height: 8),
+                            Text("photo", style: lightText14),
                           ],
                         )
                       : ClipRRect(
@@ -141,21 +163,18 @@ class _TambahresepState extends State<Tambahresep> {
               const SizedBox(height: 20),
 
               // Title
-              const Text("Title",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Text("Title", style: mediumText14),
               const SizedBox(height: 8),
-              const TextField(
-                decoration: InputDecoration(
-                  hintText: "Masukkan judul",
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(8))),
-                ),
+              TextfieldComponent(
+                controller: titleController,
+                inputType: TextInputType.text,
+                inputAction: TextInputAction.done,
+                hint: "Masukkan judul",
               ),
               const SizedBox(height: 20),
 
               // Ingredients
-              const Text("Ingredients",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Text("Ingredients", style: mediumText14),
               const SizedBox(height: 8),
 
               Column(
@@ -165,15 +184,11 @@ class _TambahresepState extends State<Tambahresep> {
                     child: Row(
                       children: [
                         Expanded(
-                          child: TextField(
+                          child: TextfieldComponent(
                             controller: ingredientsControllers[index],
-                            decoration: const InputDecoration(
-                              hintText: "Masukkan bahan",
-                              border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(8)),
-                              ),
-                            ),
+                            inputType: TextInputType.text,
+                            inputAction: TextInputAction.done,
+                            hint: "Masukkan bahan",
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -190,15 +205,14 @@ class _TambahresepState extends State<Tambahresep> {
               TextButton.icon(
                 onPressed: addIngredient,
                 icon: const Icon(Icons.add, color: Colors.black),
-                label: const Text("Add more ingredient",
-                    style: TextStyle(color: Colors.black)),
+                label: Text("Add more ingredients",
+                    style: mediumText14.copyWith(color: Colors.black)),
               ),
 
               const SizedBox(height: 20),
 
               // Steps
-              const Text("Steps",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Text("Steps", style: mediumText14),
               const SizedBox(height: 8),
 
               Column(
@@ -208,15 +222,11 @@ class _TambahresepState extends State<Tambahresep> {
                     child: Row(
                       children: [
                         Expanded(
-                          child: TextField(
+                          child: TextfieldComponent(
                             controller: stepsControllers[index],
-                            decoration: const InputDecoration(
-                              hintText: "Masukkan langkah",
-                              border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(8)),
-                              ),
-                            ),
+                            inputType: TextInputType.text,
+                            inputAction: TextInputAction.done,
+                            hint: "Masukkan langkah",
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -260,39 +270,42 @@ class _TambahresepState extends State<Tambahresep> {
               TextButton.icon(
                 onPressed: addStep,
                 icon: const Icon(Icons.add, color: Colors.black),
-                label: const Text("Add more step",
-                    style: TextStyle(color: Colors.black)),
+                label: Text("Add more steps",
+                    style: mediumText14.copyWith(color: Colors.black)),
               ),
 
               const SizedBox(height: 20),
 
               // Save & Publish Buttons
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  OutlinedButton(
-                    onPressed: () {},
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 50, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                      side: const BorderSide(color: Colors.orange),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {},
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                        side: BorderSide(color: backgroundPrimary),
+                      ),
+                      child: Text("Save",
+                          style: semiBoldText16.copyWith(
+                              color: backgroundPrimary)),
                     ),
-                    child: const Text("Save",
-                        style: TextStyle(color: Colors.orange)),
                   ),
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 50, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _publishRecipe,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: backgroundPrimary,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                      ),
+                      child: Text("Publish",
+                          style: semiBoldText16.copyWith(color: whiteColor)),
                     ),
-                    child: const Text("Publish",
-                        style: TextStyle(color: Colors.white)),
                   ),
                 ],
               ),

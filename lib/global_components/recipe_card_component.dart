@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uas_flutter/themes.dart';
 
 class RecipeCardComponent extends StatelessWidget {
   const RecipeCardComponent({super.key});
@@ -26,11 +27,11 @@ class RecipeCardComponent extends StatelessWidget {
                   ),
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.all(8.0),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
                 child: Text(
                   "Telor dadar",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: semiBoldText14,
                 ),
               ),
             ],
@@ -40,6 +41,9 @@ class RecipeCardComponent extends StatelessWidget {
           top: 8,
           right: 8,
           child: IconButton(
+            style: ButtonStyle(
+              backgroundColor: WidgetStateProperty.all(Colors.white),
+            ),
             icon: const Icon(Icons.delete, color: Colors.red),
             onPressed: () {
               // Tambahkan fungsi hapus resep

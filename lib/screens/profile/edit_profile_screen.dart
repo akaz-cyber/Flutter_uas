@@ -1,6 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:uas_flutter/global_components/header_button_component.dart';
+import 'package:uas_flutter/global_components/textfield_component.dart';
+import 'package:uas_flutter/themes.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -30,18 +33,31 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  void _submitProfile() {
+    final name = nameController.text;
+    final bio = bioController.text;
+
+    print('Name: $name');
+    print('Bio: $bio');
+
+    if (_image != null) {
+      print('Profile Image: ${_image!.path}');
+    } else {
+      print('No profile image selected.');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
+      backgroundColor: whiteColor,
+      appBar: HeaderButtonComponent(title: "Edit Profile", leadingIcon: 
+        IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context);
           },
-        ),
-        title: const Text("Edit Profile"),
-      ),
+      )),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -63,27 +79,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             const SizedBox(height: 20),
 
             // Input Nama
-            TextField(
+            TextfieldComponent(
               controller: nameController,
-              decoration: InputDecoration(
-                labelText: "Title",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
+              inputType: TextInputType.text,
+              inputAction: TextInputAction.done,
+              hint: "Enter your name",
             ),
             const SizedBox(height: 20),
 
             // Input Bio
-            TextField(
+            TextfieldComponent(
               controller: bioController,
-              maxLines: 3,
-              decoration: InputDecoration(
-                labelText: "Bio",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
+              inputType: TextInputType.text,
+              inputAction: TextInputAction.done,
+              hint: "Enter your bio",
             ),
             const SizedBox(height: 30),
 
@@ -92,18 +101,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: () {
-                  // Tambahkan aksi untuk menyimpan perubahan
-                },
+                onPressed: _submitProfile,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: const Text(
+                child: Text(
                   "Save",
-                  style: TextStyle(fontSize: 18, color: Colors.white),
+                  style: semiBoldText20.copyWith(color: whiteColor),
                 ),
               ),
             ),
