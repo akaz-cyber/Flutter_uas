@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uas_flutter/global_components/header_button_component.dart';
 import 'package:uas_flutter/global_components/recipe_card_component.dart';
-import 'package:uas_flutter/screens/home/home_screen.dart';
 import 'package:uas_flutter/screens/profile/edit_profile_screen.dart';
 import 'package:uas_flutter/themes.dart';
 

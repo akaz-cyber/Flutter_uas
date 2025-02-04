@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uas_flutter/global_components/recipe_card_item_component.dart';
 import 'package:uas_flutter/global_components/recipe_card_item_bg_component.dart';
-import 'package:uas_flutter/screens/recipe/add_new_recipe_screen.dart';
 import 'package:uas_flutter/global_components/search_text_field_component.dart';
 import 'package:uas_flutter/themes.dart';
 
