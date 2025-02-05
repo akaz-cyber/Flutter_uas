@@ -33,23 +33,26 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   Future<void> _googleSignIn() async {
     try {
-      const webClientId = '23714171420-0mm7gpf1go1ao8jfp1rqu7kfc6d0iums.apps.googleusercontent.com';
+     
+      const webClientId = '727913120242-mpgifj6v101ca1qh1mpr3ao254p4ru5i.apps.googleusercontent.com';
+
+     
+      const iosClientId = '727913120242-6u6cb1indoi8pge8lhsa14hrvveofoer.apps.googleusercontent.com';
 
       final GoogleSignIn googleSignIn = GoogleSignIn(
+        clientId: iosClientId,
         serverClientId: webClientId,
       );
-
       final googleUser = await googleSignIn.signIn();
-      if (googleUser == null) {
-        throw 'Login dibatalkan oleh user.';
-      }
-
-      final googleAuth = await googleUser.authentication;
+      final googleAuth = await googleUser!.authentication;
       final accessToken = googleAuth.accessToken;
       final idToken = googleAuth.idToken;
 
-      if (idToken == null || accessToken == null) {
-        throw 'Gagal mendapatkan token dari Google.';
+      if (accessToken == null) {
+        throw 'No Access Token found.';
+      }
+      if (idToken == null) {
+        throw 'No ID Token found.';
       }
 
       final response = await supabase.auth.signInWithIdToken(
