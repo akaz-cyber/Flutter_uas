@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:uas_flutter/global_components/header_button_component.dart';
 import 'package:uas_flutter/global_components/textfield_component.dart';
 import 'package:uas_flutter/themes.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Tambahresep extends StatefulWidget {
   const Tambahresep({super.key});
@@ -92,25 +93,69 @@ class _TambahresepState extends State<Tambahresep> {
     });
   }
 
-  void _publishRecipe() {
+
+void _publishRecipe() async {
+  try {
+    final supabase = Supabase.instance.client;
     final title = titleController.text;
     final ingredients =
         ingredientsControllers.map((controller) => controller.text).toList();
     final steps =
         stepsControllers.map((controller) => controller.text).toList();
 
-    print('Title: $title');
-    print('Ingredients: $ingredients');
-    print('Steps: $steps');
-    if (_imageFile != null) {
-      print('Main Image: ${_imageFile!.path}');
+    if (title.isEmpty || _imageFile == null || ingredients.isEmpty || steps.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Mohon lengkapi semua data")),
+      );
+      return;
     }
-    for (int i = 0; i < stepImages.length; i++) {
-      if (stepImages[i] != null) {
-        print('Step ${i + 1} Image: ${stepImages[i]!.path}');
+
+    // Upload Gambar Utama
+    String? imageUrl;
+    if (_imageFile != null) {
+      final imageBytes = await _imageFile!.readAsBytes();
+      final fileName = 'images/${DateTime.now().millisecondsSinceEpoch}.png';
+      await supabase.storage.from('resep_images').uploadBinary(fileName, imageBytes);
+      imageUrl = supabase.storage.from('resep_images').getPublicUrl(fileName);
+    }
+
+    // Upload Gambar Langkah-langkah
+    List<String> stepImagesUrls = [];
+    for (var image in stepImages) {
+      if (image != null) {
+        final imageBytes = await image.readAsBytes();
+        final fileName = 'images/${DateTime.now().millisecondsSinceEpoch}.png';
+        await supabase.storage.from('resep_images').uploadBinary(fileName, imageBytes);
+        stepImagesUrls.add(supabase.storage.from('resep_images').getPublicUrl(fileName));
+      } else {
+        stepImagesUrls.add('');
       }
     }
+
+    // Simpan Data ke Database
+    final response = await supabase.from('Tambahresep').insert({
+      'title': title,
+      'image_utama': imageUrl,
+      'ingredients': ingredients.join(', '),
+      'steps': steps.join(', '),
+      'steps_image': stepImagesUrls.join(', '),
+      'created_at': DateTime.now().toIso8601String(),
+    }).select();
+
+    if (response == null || response.isEmpty) {
+      throw Exception("Gagal menyimpan resep. Response null atau kosong.");
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Resep berhasil disimpan!")),
+    );
+    Navigator.pop(context);
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Terjadi kesalahan: $e")),
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +173,7 @@ class _TambahresepState extends State<Tambahresep> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Image Upload
+              // Image Upload Utama
               GestureDetector(
                 onTap: _pickImage,
                 child: Container(
