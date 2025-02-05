@@ -93,24 +93,24 @@ class _TambahresepState extends State<Tambahresep> {
     });
   }
 
-
 void _publishRecipe() async {
   try {
     final supabase = Supabase.instance.client;
-    final title = titleController.text;
+    final title = titleController.text.trim();
     final ingredients =
-        ingredientsControllers.map((controller) => controller.text).toList();
+        ingredientsControllers.map((controller) => controller.text.trim()).toList();
     final steps =
-        stepsControllers.map((controller) => controller.text).toList();
+        stepsControllers.map((controller) => controller.text.trim()).toList();
 
     if (title.isEmpty || _imageFile == null || ingredients.isEmpty || steps.isEmpty) {
+      if (!mounted) return; 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Mohon lengkapi semua data")),
       );
       return;
     }
 
-    // Upload Gambar Utama
+    
     String? imageUrl;
     if (_imageFile != null) {
       final imageBytes = await _imageFile!.readAsBytes();
@@ -119,7 +119,7 @@ void _publishRecipe() async {
       imageUrl = supabase.storage.from('resep_images').getPublicUrl(fileName);
     }
 
-    // Upload Gambar Langkah-langkah
+   
     List<String> stepImagesUrls = [];
     for (var image in stepImages) {
       if (image != null) {
@@ -132,7 +132,7 @@ void _publishRecipe() async {
       }
     }
 
-    // Simpan Data ke Database
+    
     final response = await supabase.from('Tambahresep').insert({
       'title': title,
       'image_utama': imageUrl,
@@ -142,15 +142,19 @@ void _publishRecipe() async {
       'created_at': DateTime.now().toIso8601String(),
     }).select();
 
-    if (response == null || response.isEmpty) {
-      throw Exception("Gagal menyimpan resep. Response null atau kosong.");
+    
+    if (response.isEmpty) {
+      throw Exception("Gagal menyimpan resep. Data tidak masuk ke database.");
     }
 
+    if (!mounted) return; 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Resep berhasil disimpan!")),
     );
-    Navigator.pop(context);
+
+    Navigator.pop(context); 
   } catch (e) {
+    if (!mounted) return; 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("Terjadi kesalahan: $e")),
     );
