@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uas_flutter/global_components/recipe_card_item_component.dart';
 import 'package:uas_flutter/global_components/recipe_card_item_bg_component.dart';
@@ -12,29 +13,41 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-final List<NewRecipeCardItem> _trendingBooks = [
-  const NewRecipeCardItem(
-      imageUrl: "assets/images/default_food01.png",
-      writter: "Brian Khrisna",
-      title: "Sisi Tergelap Surga"),
-  const NewRecipeCardItem(
-      imageUrl: "assets/images/default_food02.png",
-      writter: "James Clear",
-      title: "Atomic Habits"),
-  const NewRecipeCardItem(
-      imageUrl: "assets/images/default_food03.png",
-      writter: "Miura Kouji",
-      title: "Blue Box 04"),
-];
-
 class _HomeScreenState extends State<HomeScreen> {
+  final logger = Logger();
   final supabase = Supabase.instance.client;
-  User? _user; 
+  User? _user;
+  List<Map<String, dynamic>> _newRecipes = [];
+  bool _isLoading = true;
+
+  Future<void> _fetchTrendingRecipes() async {
+    try {
+      final response = await supabase
+          .from('tb_recipes')
+          .select('image, title')
+          .order("created_at", ascending: false)
+          .limit(5);
+
+      setState(() {
+        _newRecipes = List<Map<String, dynamic>>.from(response);
+        _isLoading = false;
+        logger.i("Successfully fetched new recipes");
+        logger.i(_newRecipes);
+      });
+    } catch (error) {
+      setState(() {
+        _isLoading = false;
+      });
+      logger.e("Failed to fetch new recipes");
+      logger.e(error.toString());
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     _getUserInfo();
+    _fetchTrendingRecipes();
   }
 
   void _getUserInfo() {
@@ -53,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Hello, ${_user?.userMetadata?['full_name'] ?? 'User'}', 
+                'Hello, ${_user?.userMetadata?['full_name'] ?? 'User'}',
                 style: semiBoldText20,
               ),
               Text(
@@ -93,25 +106,34 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget listTrendingBookSection() {
+    if (_isLoading) {
+      return Container(
+        height: 200,
+        alignment: Alignment.center,
+        child: const CircularProgressIndicator(),
+      );
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 30),
       height: 200,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemBuilder: (context, index) {
+          final recipe = _newRecipes[index];
           return InkWell(
             onTap: () {},
             child: NewRecipeCardItem(
-              imageUrl: _trendingBooks[index].imageUrl,
-              title: _trendingBooks[index].title,
-              writter: _trendingBooks[index].writter,
+              imageUrl: recipe['image'],
+              title: recipe['title'],
+              writter: '', // Add writer if available
             ),
           );
         },
         separatorBuilder: (context, index) {
           return const SizedBox(width: 10);
         },
-        itemCount: _trendingBooks.length,
+        itemCount: _newRecipes.length,
       ),
     );
   }

@@ -33,7 +33,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   Future<void> _googleSignIn() async {
     try {
-      const webClientId = '23714171420-0mm7gpf1go1ao8jfp1rqu7kfc6d0iums.apps.googleusercontent.com';
+      const webClientId =
+          '23714171420-0mm7gpf1go1ao8jfp1rqu7kfc6d0iums.apps.googleusercontent.com';
 
       final GoogleSignIn googleSignIn = GoogleSignIn(
         serverClientId: webClientId,

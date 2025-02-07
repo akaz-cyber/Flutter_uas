@@ -93,73 +93,79 @@ class _TambahresepState extends State<Tambahresep> {
     });
   }
 
-void _publishRecipe() async {
-  try {
-    final supabase = Supabase.instance.client;
-    final title = titleController.text.trim();
-    final ingredients =
-        ingredientsControllers.map((controller) => controller.text.trim()).toList();
-    final steps =
-        stepsControllers.map((controller) => controller.text.trim()).toList();
+  void _publishRecipe() async {
+    try {
+      final supabase = Supabase.instance.client;
+      final title = titleController.text.trim();
+      final ingredients = ingredientsControllers
+          .map((controller) => controller.text.trim())
+          .toList();
+      final steps =
+          stepsControllers.map((controller) => controller.text.trim()).toList();
 
-    if (title.isEmpty || _imageFile == null || ingredients.isEmpty || steps.isEmpty) {
-      if (!mounted) return; 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Mohon lengkapi semua data")),
-      );
-      return;
-    }
-
-    
-    String? imageUrl;
-    if (_imageFile != null) {
-      final imageBytes = await _imageFile!.readAsBytes();
-      final fileName = 'images/${DateTime.now().millisecondsSinceEpoch}.png';
-      await supabase.storage.from('resep_images').uploadBinary(fileName, imageBytes);
-      imageUrl = supabase.storage.from('resep_images').getPublicUrl(fileName);
-    }
-
-   
-    List<String> stepImagesUrls = [];
-    for (var image in stepImages) {
-      if (image != null) {
-        final imageBytes = await image.readAsBytes();
-        final fileName = 'images/${DateTime.now().millisecondsSinceEpoch}.png';
-        await supabase.storage.from('resep_images').uploadBinary(fileName, imageBytes);
-        stepImagesUrls.add(supabase.storage.from('resep_images').getPublicUrl(fileName));
-      } else {
-        stepImagesUrls.add('');
+      if (title.isEmpty ||
+          _imageFile == null ||
+          ingredients.isEmpty ||
+          steps.isEmpty) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Mohon lengkapi semua data")),
+        );
+        return;
       }
+
+      String? imageUrl;
+      if (_imageFile != null) {
+        final imageBytes = await _imageFile!.readAsBytes();
+        final fileName = 'images/${DateTime.now().millisecondsSinceEpoch}.png';
+        await supabase.storage
+            .from('recipe_images')
+            .uploadBinary(fileName, imageBytes);
+        imageUrl =
+            supabase.storage.from('recipe_images').getPublicUrl(fileName);
+      }
+
+      List<String> stepImagesUrls = [];
+      for (var image in stepImages) {
+        if (image != null) {
+          final imageBytes = await image.readAsBytes();
+          final fileName =
+              'images/${DateTime.now().millisecondsSinceEpoch}.png';
+          await supabase.storage
+              .from('recipe_images')
+              .uploadBinary(fileName, imageBytes);
+          stepImagesUrls.add(
+              supabase.storage.from('recipe_images').getPublicUrl(fileName));
+        } else {
+          stepImagesUrls.add('');
+        }
+      }
+
+      final response = await supabase.from('tb_recipes').insert({
+        'title': title,
+        'image': imageUrl,
+        'ingredients': ingredients.join(', '),
+        'steps': steps.join(', '),
+        'steps_image': stepImagesUrls.join(', ')
+      }).select();
+
+      if (response.isEmpty) {
+        throw Exception("Gagal menyimpan resep. Data tidak masuk ke database.");
+      }
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Resep berhasil disimpan!")),
+      );
+
+      Navigator.pop(context);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Terjadi kesalahan: $e")),
+      );
     }
-
-    
-    final response = await supabase.from('Tambahresep').insert({
-      'title': title,
-      'image_utama': imageUrl,
-      'ingredients': ingredients.join(', '),
-      'steps': steps.join(', '),
-      'steps_image': stepImagesUrls.join(', '),
-      'created_at': DateTime.now().toIso8601String(),
-    }).select();
-
-    
-    if (response.isEmpty) {
-      throw Exception("Gagal menyimpan resep. Data tidak masuk ke database.");
-    }
-
-    if (!mounted) return; 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Resep berhasil disimpan!")),
-    );
-
-    Navigator.pop(context); 
-  } catch (e) {
-    if (!mounted) return; 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Terjadi kesalahan: $e")),
-    );
   }
-}
 
   @override
   Widget build(BuildContext context) {
