@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uas_flutter/global_components/header_button_component.dart';
 import 'package:uas_flutter/global_components/textfield_component.dart';
@@ -258,11 +259,14 @@ class _TambahresepState extends State<Tambahresep> {
               // Serve
               Text("Serve", style: mediumText14),
               const SizedBox(height: 8),
-              TextfieldComponent(
+              TextField(
                 controller: serveController,
-                inputType: TextInputType.text,
-                inputAction: TextInputAction.done,
-                hint: "Masukkan serve",
+                keyboardType: TextInputType.number, 
+                textInputAction: TextInputAction.done,
+                decoration: const InputDecoration(hintText: "Masukkan serve"),
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly
+                ], 
               ),
               const SizedBox(height: 20),
 
