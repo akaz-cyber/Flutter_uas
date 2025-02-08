@@ -62,18 +62,22 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Hello, ${_user?.userMetadata?['full_name'] ?? 'User'}',
-                style: semiBoldText20,
-              ),
-              Text(
-                'What are you cooking today?',
-                style: regularText14.copyWith(color: grayColor),
-              ),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Hello, ${_user?.userMetadata?['full_name'] ?? 'User'}',
+                  style: semiBoldText20,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  'What are you cooking today?',
+                  style: regularText14.copyWith(color: grayColor),
+                ),
+              ],
+            ),
           ),
           const SizedBox(width: 8),
           ClipRRect(
