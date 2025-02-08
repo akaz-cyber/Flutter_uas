@@ -67,6 +67,10 @@ class _DetailresepState extends State<Detailresep> {
           .eq('id', widget.recipeId)
           .single();
 
+      await supabase.from('tb_recipes').update({
+        'view_count': (response['view_count'] as int) + 1,
+      }).eq('id', widget.recipeId);
+
       debugPrint("Fetched Recipe: $response");
 
       if (mounted) {
@@ -342,15 +346,14 @@ class _DetailresepState extends State<Detailresep> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8), 
+                      const SizedBox(height: 8),
                       if (index < stepsImages.length &&
                           stepsImages[index].isNotEmpty)
                         ClipRRect(
                           borderRadius: BorderRadius.circular(8),
                           child: Image.network(
                             stepsImages[index],
-                            width: double
-                                .infinity, 
+                            width: double.infinity,
                             height: 180,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) =>
@@ -358,7 +361,7 @@ class _DetailresepState extends State<Detailresep> {
                                     size: 100, color: Colors.grey),
                           ),
                         ),
-                      const SizedBox(height: 12), 
+                      const SizedBox(height: 12),
                     ],
                   ),
                 );

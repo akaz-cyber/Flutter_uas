@@ -5,14 +5,14 @@ class NewRecipeCardItem extends StatelessWidget {
   const NewRecipeCardItem(
       {super.key,
       required this.title,
-      required this.writter,
+      required this.creator,
       required this.imageUrl});
 
   /* 
     Default variable untuk component trending book
   */
   final String title;
-  final String writter;
+  final String creator;
   final String imageUrl;
 
   @override
@@ -49,7 +49,7 @@ class NewRecipeCardItem extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  writter,
+                  creator,
                   style: lightText12,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

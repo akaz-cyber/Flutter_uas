@@ -21,7 +21,7 @@ class NewRecipeCardItemBG extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
-            child: Image.asset(imageUrl,
+            child: Image.network(imageUrl,
                 height: double.infinity, width: 250, fit: BoxFit.cover),
           ),
           Container(
@@ -59,7 +59,8 @@ class NewRecipeCardItemBG extends StatelessWidget {
                       ),
                     ],
                   ),
-                  Text("20 min", style: lightText14.copyWith(color: whiteColor)),
+                  Text("20 min",
+                      style: lightText14.copyWith(color: whiteColor)),
                 ],
               ),
             ),

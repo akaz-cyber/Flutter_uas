@@ -24,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final supabase = Supabase.instance.client;
   UserModel? _user;
   List<RecipeModel> _newRecipes = [];
+  List<RecipeModel> _featuredRecipes = [];
   bool _isLoading = true;
   final userService = UserServiceImplementation();
   final recipeService = RecipeServicesImplementation();
@@ -34,13 +35,13 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _fetchLoggedUser();
     _fetchTrendingRecipes();
+    _fetchFeaturedRecipes();
   }
 
   void _fetchLoggedUser() {
     userService.getUserData().then((user) => {
           setState(() {
             _user = user;
-            _isLoading = false;
           })
         });
   }
@@ -49,6 +50,13 @@ class _HomeScreenState extends State<HomeScreen> {
     List<RecipeModel> recipes = await recipeService.fetchNewRecipes();
     setState(() {
       _newRecipes = recipes;
+    });
+  }
+
+  void _fetchFeaturedRecipes() async {
+    List<RecipeModel> recipes = await recipeService.fetchFeaturedRecipes();
+    setState(() {
+      _featuredRecipes = recipes;
       _isLoading = false;
     });
   }
@@ -149,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: NewRecipeCardItem(
               imageUrl: newRecipe.image!,
               title: newRecipe.title!,
-              writter: '', // Add writer if available
+              creator: newRecipe.user!.username!, // Add writer if available
             ),
           );
         },
@@ -162,16 +170,36 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget listFeaturedBookSection() {
+    if (_isLoading) {
+      return Container(
+        height: 200,
+        alignment: Alignment.center,
+        child: const CircularProgressIndicator(),
+      );
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 30),
       height: 180,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemBuilder: (context, index) {
-          return const NewRecipeCardItemBG(
-            title: "Tahu Itil",
-            author: 'Ambatukam',
-            imageUrl: "assets/images/default_food01.png",
+          final featuredRecipe = _featuredRecipes[index];
+          return InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      Detailresep(recipeId: featuredRecipe.id),
+                ),
+              );
+            },
+            child: NewRecipeCardItemBG(
+              title: featuredRecipe.title!,
+              author: 'Titit bapa',
+              imageUrl: featuredRecipe.image!,
+            ),
           );
         },
         separatorBuilder: (context, index) {

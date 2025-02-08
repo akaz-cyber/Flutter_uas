@@ -1,3 +1,5 @@
+import 'package:uas_flutter/models/user.model.dart';
+
 class RecipeModel {
   final int id;
   final DateTime createdAt;
@@ -9,7 +11,7 @@ class RecipeModel {
   final String? description;
   final int serveAmount;
   final String? timeConsumed;
-  final String userId;
+  final UserModel? user;
 
   RecipeModel({
     required this.id,
@@ -22,7 +24,7 @@ class RecipeModel {
     required this.description,
     required this.serveAmount,
     required this.timeConsumed,
-    required this.userId,
+    required this.user,
   });
 
   factory RecipeModel.fromJson(Map<String, dynamic> json) {
@@ -37,7 +39,7 @@ class RecipeModel {
       description: json['description'],
       serveAmount: json['serve_amount'],
       timeConsumed: json['time_consumed'],
-      userId: json['user_id'],
+      user: UserModel.fromJson(json['tb_users']),
     );
   }
 }

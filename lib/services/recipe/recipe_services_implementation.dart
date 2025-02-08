@@ -12,8 +12,31 @@ class RecipeServicesImplementation implements RecipeServices {
     try {
       final response = await supabase
           .from('tb_recipes')
-          .select('*')
+          .select('*, tb_users(username)')
+          .limit(5)
           .order("created_at", ascending: false);
+
+      logger.i("Successfully fetched new recipes");
+
+      List<RecipeModel> result =
+          List<RecipeModel>.from(response.map((e) => RecipeModel.fromJson(e)));
+
+      return result;
+    } catch (error) {
+      logger.e("Failed to fetch new recipes");
+      logger.e(error.toString());
+      return [];
+    }
+  }
+
+  @override
+  Future<List<RecipeModel>> fetchFeaturedRecipes() async {
+    try {
+      final response = await supabase
+          .from('tb_recipes')
+          .select('*, tb_users(username)')
+          .limit(5)
+          .order("view_count", ascending: false);
 
       logger.i("Successfully fetched new recipes");
 
@@ -33,7 +56,7 @@ class RecipeServicesImplementation implements RecipeServices {
     try {
       final response = await supabase
           .from('tb_recipes')
-          .select('*')
+          .select('*, tb_users(username)')
           .ilike('title', '%$keyword%')
           .order("created_at", ascending: false);
 
