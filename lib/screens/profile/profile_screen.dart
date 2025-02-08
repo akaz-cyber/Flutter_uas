@@ -3,8 +3,10 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uas_flutter/global_components/header_button_component.dart';
 import 'package:uas_flutter/global_components/recipe_card_component.dart';
+import 'package:uas_flutter/models/user.model.dart';
 import 'package:uas_flutter/screens/profile/edit_profile_screen.dart';
 import 'package:uas_flutter/screens/utility/welcome_screen.dart';
+import 'package:uas_flutter/services/user/user_services_implementation.dart';
 import 'package:uas_flutter/themes.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -16,7 +18,9 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final supabase = Supabase.instance.client;
-  User? _user;
+  final userService = UserServiceImplementation();
+  UserModel? _user;
+
 
   @override
   void initState() {
@@ -24,9 +28,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _getUserInfo();
   }
 
-  void _getUserInfo() {
+  Future<void> _getUserInfo() async {
+    final userData = await userService.getUserData();
     setState(() {
-      _user = supabase.auth.currentUser;
+      _user = userData;
     });
   }
 
@@ -45,7 +50,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 MaterialPageRoute(
                   builder: (context) => const EditProfileScreen(),
                 ),
-              );
+              ).then((_) => _getUserInfo()); // Reload data setelah kembali
             },
           ),
         ],
@@ -55,32 +60,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Bagian Profil Pengguna
             Row(
               children: [
                 CircleAvatar(
                   radius: 30,
-                  backgroundImage: _user?.userMetadata?['avatar_url'] != null
-                      ? NetworkImage(_user!.userMetadata!['avatar_url'])
+                  backgroundImage: _user?.profileImage != null
+                      ? NetworkImage(_user!.profileImage!)
                       : const AssetImage('assets/images/default_profile.jpg')
                           as ImageProvider,
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  // Mencegah overflow
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _user?.userMetadata?['full_name'] ?? "User",
+                        _user?.username ?? '',
                         style: semiBoldText16.copyWith(
                             fontWeight: FontWeight.bold),
-                        maxLines: 1, // Maksimal 1 baris
-                        overflow: TextOverflow
-                            .ellipsis, // Tambahkan ... jika terlalu panjang
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        "Penikmat kuliner",
+                        _user?.bio ?? '',
                         style: regularText14,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -93,12 +95,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     await supabase.auth.signOut();
                     await GoogleSignIn().signOut();
                     if (mounted) {
-                      // ignore: use_build_context_synchronously
                       Navigator.of(context).pushAndRemoveUntil(
                         MaterialPageRoute(
                             builder: (context) => const WelcomeScreen()),
-                        (Route<dynamic> route) =>
-                            false, // Menghapus semua rute sebelumnya
+                        (Route<dynamic> route) => false,
                       );
                     }
                   },
@@ -109,12 +109,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
             ),
-
             const SizedBox(height: 30),
             Text("Your Recipes", style: semiBoldText20),
-
             const SizedBox(height: 20),
-            // Daftar Resep dalam Grid
             Expanded(
               child: GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
