@@ -21,36 +21,27 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> _newRecipes = [];
   bool _isLoading = true;
 
-Future<void> _fetchTrendingRecipes() async {
-  try {
-    logger.i("Fetching new recipes...");
-    final response = await supabase
-        .from('tb_recipes')
-        .select('id, image, title')
-        .order("created_at", ascending: false)
-        .limit(5);
-
-    if (response != null && response.isNotEmpty) {
+  Future<void> _fetchTrendingRecipes() async {
+    try {
+      final response = await supabase
+          .from('tb_recipes')
+          .select('id, image, title')
+          .order("created_at", ascending: false)
+          .limit(5);
       setState(() {
         _newRecipes = List<Map<String, dynamic>>.from(response);
         _isLoading = false;
+        logger.i("Successfully fetched new recipes");
+        logger.i(_newRecipes);
       });
-      logger.i("Successfully fetched new recipes");
-      logger.i(_newRecipes);
-    } else {
+    } catch (error) {
       setState(() {
-        _newRecipes = [];
         _isLoading = false;
       });
-      logger.w("No new recipes found");
+      logger.e("Failed to fetch new recipes");
+      logger.e(error.toString());
     }
-  } catch (error, stacktrace) {
-    setState(() {
-      _isLoading = false;
-    });
-    logger.e("Failed to fetch new recipes", error: error, stackTrace: stacktrace);
   }
-}
 
   @override
   void initState() {
@@ -143,7 +134,7 @@ Future<void> _fetchTrendingRecipes() async {
             child: NewRecipeCardItem(
               imageUrl: recipe['image'],
               title: recipe['title'],
-              writter: '', // Add writer if available
+              writter: '',
             ),
           );
         },
