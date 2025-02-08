@@ -64,8 +64,9 @@ class UserServiceImplementation implements UserService {
 
       final response = await supabase
           .from('tb_users')
-          .select('username, email, profile_image, id')
+          .select('username,bio, email, profile_image, id')
           .eq('email', user!.email!);
+          
 
       logger.i(response);
 
