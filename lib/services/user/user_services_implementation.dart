@@ -47,8 +47,8 @@ class UserServiceImplementation implements UserService {
 
       await supabase.rpc('upsert_user', params: {
         'emailarg': email,
-        'profileimagearg': username,
-        'usernamearg': profileImage
+        'profileimagearg': profileImage,
+        'usernamearg': username
       });
 
       logger.i("Berhasil upsert data user");
