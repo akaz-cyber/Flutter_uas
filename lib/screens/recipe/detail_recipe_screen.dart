@@ -1,17 +1,78 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uas_flutter/themes.dart';
 
 class Detailresep extends StatefulWidget {
-  const Detailresep({super.key});
+  final int recipeId;
+  const Detailresep({super.key, required this.recipeId});
 
   @override
   State<Detailresep> createState() => _DetailresepState();
 }
 
 class _DetailresepState extends State<Detailresep> {
+  final supabase = Supabase.instance.client;
+  Map<String, dynamic>? recipe;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchRecipe();
+  }
+
+  Future<void> fetchRecipe() async {
+    try {
+      final response = await supabase
+          .from('tb_recipes')
+          .select()
+          .eq('id', widget.recipeId)
+          .maybeSingle(); 
+
+      debugPrint("Fetched Recipe: $response"); 
+
+      if (mounted) {
+        setState(() {
+          recipe = response;
+          isLoading = false;
+        });
+      }
+    } catch (error, stacktrace) {
+      debugPrint("Error fetching recipe: $error\n$stacktrace");
+      if (mounted) {
+        setState(() {
+          recipe = null;
+          isLoading = false;
+        });
+      }
+    }
+  }
+
   bool isBookmarked = false;
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (recipe == null) {
+      return const Center(child: Text("Recipe not found"));
+    }
+
+    List<String> parseStringToList(String? data) {
+      if (data == null || data.isEmpty)
+        return []; 
+      return data
+          .split(',')
+          .map((e) => e.trim())
+          .toList();
+    }
+
+    List<String> ingredientsList = parseStringToList(recipe!['ingredients']);
+    List<String> stepsList = parseStringToList(recipe!['steps']);
+
     return Scaffold(
       backgroundColor: whiteColor,
       body: SingleChildScrollView(
@@ -28,18 +89,21 @@ class _DetailresepState extends State<Detailresep> {
                     width: double.infinity,
                     height: 180,
                     decoration: BoxDecoration(
-                      color: Colors.grey[200],
+                      image: DecorationImage(
+                        image: NetworkImage(recipe!['image']),
+                        fit: BoxFit.cover,
+                      ),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.image_outlined,
-                            size: 40, color: Colors.black54),
-                        const SizedBox(height: 8),
-                        Text("Recipe’s photo", style: lightText14),
-                      ],
-                    ),
+                    // child: Column(
+                    //   mainAxisAlignment: MainAxisAlignment.center,
+                    //   children: [
+                    //     const Icon(Icons.image_outlined,
+                    //         size: 40, color: Colors.black54),
+                    //     const SizedBox(height: 8),
+                    //     Text("Recipes photo", style: lightText14),
+                    //   ],
+                    // ),
                   ),
 
                   // Ikon panah ke kiri (
@@ -53,7 +117,9 @@ class _DetailresepState extends State<Detailresep> {
                       ),
                       child: IconButton(
                         icon: const Icon(Icons.arrow_back),
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.pop(context, true);
+                        },
                       ),
                     ),
                   ),
@@ -63,10 +129,7 @@ class _DetailresepState extends State<Detailresep> {
               const SizedBox(height: 16),
 
               // Judul resep
-              Text(
-                "Spicy chicken burger with French fries",
-                style: semiBoldText20,
-              ),
+              Text(recipe!['title'], style: semiBoldText20),
 
               const SizedBox(height: 8),
 
@@ -77,7 +140,7 @@ class _DetailresepState extends State<Detailresep> {
                       size: 18, color: Colors.black54),
                   const SizedBox(width: 5),
                   Text(
-                    "20 min",
+                    recipe!['time_consumed'],
                     style: regularText14,
                   ),
                   const Spacer(),
@@ -116,7 +179,7 @@ class _DetailresepState extends State<Detailresep> {
               const SizedBox(height: 8),
 
               Text(
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ornare velit sit amet ante bibendum, quis maximus sem vulputate.",
+                recipe!['description'],
                 style: regularText12,
               ),
 
@@ -147,7 +210,7 @@ class _DetailresepState extends State<Detailresep> {
                   const Icon(Icons.restaurant, size: 18, color: Colors.black54),
                   const SizedBox(width: 5),
                   Text(
-                    "1 serve",
+                    "${recipe!['serve_amount']} serve",
                     style: regularText14,
                   ),
                 ],
@@ -156,7 +219,7 @@ class _DetailresepState extends State<Detailresep> {
               const SizedBox(height: 8),
 
               // List Ingredients
-              ...List.generate(4, (index) {
+              ...List.generate(ingredientsList.length, (index) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   child: Row(
@@ -168,16 +231,16 @@ class _DetailresepState extends State<Detailresep> {
                             color: Colors.grey[100],
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Text("2 genggam bunga pepaya",
-                              style:
-                                  regularText12.copyWith(color: Colors.black)),
+                          child: Text(
+                            ingredientsList[index],
+                            style: regularText12.copyWith(color: Colors.black),
+                          ),
                         ),
                       ),
                     ],
                   ),
                 );
               }),
-
               const SizedBox(height: 20),
 
               // Steps Section
@@ -189,7 +252,7 @@ class _DetailresepState extends State<Detailresep> {
               const SizedBox(height: 8),
 
               // Steps List
-              ...List.generate(4, (index) {
+              ...List.generate(stepsList.length, (index) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Row(
@@ -212,7 +275,7 @@ class _DetailresepState extends State<Detailresep> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ornare velit sit amet ante bibendum.",
+                          stepsList[index],
                           style: regularText12.copyWith(color: Colors.black),
                         ),
                       ),

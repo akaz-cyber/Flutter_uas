@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uas_flutter/global_components/recipe_card_item_component.dart';
 import 'package:uas_flutter/global_components/recipe_card_item_bg_component.dart';
 import 'package:uas_flutter/global_components/search_text_field_component.dart';
+import 'package:uas_flutter/screens/recipe/detail_recipe_screen.dart';
 import 'package:uas_flutter/themes.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -20,28 +21,36 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> _newRecipes = [];
   bool _isLoading = true;
 
-  Future<void> _fetchTrendingRecipes() async {
-    try {
-      final response = await supabase
-          .from('tb_recipes')
-          .select('image, title')
-          .order("created_at", ascending: false)
-          .limit(5);
+Future<void> _fetchTrendingRecipes() async {
+  try {
+    logger.i("Fetching new recipes...");
+    final response = await supabase
+        .from('tb_recipes')
+        .select('id, image, title')
+        .order("created_at", ascending: false)
+        .limit(5);
 
+    if (response != null && response.isNotEmpty) {
       setState(() {
         _newRecipes = List<Map<String, dynamic>>.from(response);
         _isLoading = false;
-        logger.i("Successfully fetched new recipes");
-        logger.i(_newRecipes);
       });
-    } catch (error) {
+      logger.i("Successfully fetched new recipes");
+      logger.i(_newRecipes);
+    } else {
       setState(() {
+        _newRecipes = [];
         _isLoading = false;
       });
-      logger.e("Failed to fetch new recipes");
-      logger.e(error.toString());
+      logger.w("No new recipes found");
     }
+  } catch (error, stacktrace) {
+    setState(() {
+      _isLoading = false;
+    });
+    logger.e("Failed to fetch new recipes", error: error, stackTrace: stacktrace);
   }
+}
 
   @override
   void initState() {
@@ -122,7 +131,15 @@ class _HomeScreenState extends State<HomeScreen> {
         itemBuilder: (context, index) {
           final recipe = _newRecipes[index];
           return InkWell(
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      Detailresep(recipeId: _newRecipes[index]['id']),
+                ),
+              );
+            },
             child: NewRecipeCardItem(
               imageUrl: recipe['image'],
               title: recipe['title'],
