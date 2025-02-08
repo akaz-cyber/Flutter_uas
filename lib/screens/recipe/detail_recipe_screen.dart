@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uas_flutter/models/user.model.dart';
+import 'package:uas_flutter/services/user/user_services_implementation.dart';
 import 'package:uas_flutter/themes.dart';
 
 class Detailresep extends StatefulWidget {
   final int recipeId;
   const Detailresep({super.key, required this.recipeId});
-
   @override
   State<Detailresep> createState() => _DetailresepState();
 }
 
 class _DetailresepState extends State<Detailresep> {
   final supabase = Supabase.instance.client;
+  final UserService = UserServiceImplementation();
+  UserModel? _user;
   Map<String, dynamic>? recipe;
   bool isLoading = true;
 
@@ -19,23 +22,62 @@ class _DetailresepState extends State<Detailresep> {
   void initState() {
     super.initState();
     fetchRecipe();
+    _fetchLoggedUser();
+  }
+
+//bookmark
+  void _fetchLoggedUser() {
+    UserService.getUserData().then((user) {
+      setState(() {
+        _user = user;
+        isLoading = false;
+      });
+
+      if (_user != null) {
+        checkIfBookmarked(); // Tambahkan ini
+      }
+    });
+  }
+
+//bookmark
+  Future<void> toggleBookmark() async {
+    final userId = _user?.id;
+    if (userId == null) return;
+
+    if (isBookmarked) {
+      await supabase
+          .from('tb_bookmark')
+          .delete()
+          .match({'recipe_id': widget.recipeId, 'user_id': userId});
+    } else {
+      await supabase.from('tb_bookmark').insert({
+        'recipe_id': widget.recipeId,
+        'user_id': userId,
+      });
+    }
+
+    checkIfBookmarked();
   }
 
   Future<void> fetchRecipe() async {
     try {
       final response = await supabase
           .from('tb_recipes')
-          .select()
+          .select('*, tb_users(username)')
           .eq('id', widget.recipeId)
-          .maybeSingle(); 
+          .single();
 
-      debugPrint("Fetched Recipe: $response"); 
+      debugPrint("Fetched Recipe: $response");
 
       if (mounted) {
         setState(() {
           recipe = response;
           isLoading = false;
         });
+
+        if (recipe != null && recipe!['user_id'] != null) {
+          fetchRecipeCreator(recipe!['user_id']);
+        }
       }
     } catch (error, stacktrace) {
       debugPrint("Error fetching recipe: $error\n$stacktrace");
@@ -48,7 +90,40 @@ class _DetailresepState extends State<Detailresep> {
     }
   }
 
+  Future<void> fetchRecipeCreator(String userId) async {
+    try {
+      final response =
+          await supabase.from('users').select().eq('id', userId).maybeSingle();
+
+      if (mounted) {
+        setState(() {
+          _user = response != null ? UserModel.fromJson(response) : null;
+        });
+      }
+    } catch (error, stacktrace) {
+      debugPrint("Error fetching creator: $error\n$stacktrace");
+    }
+  }
+
+//bookmark
   bool isBookmarked = false;
+//book
+  Future<void> checkIfBookmarked() async {
+    final userId = _user?.id;
+    if (userId == null) return;
+
+    final response = await supabase
+        .from('tb_bookmark')
+        .select('id')
+        .eq('recipe_id', widget.recipeId)
+        .eq('user_id', userId)
+        .maybeSingle();
+
+    setState(() {
+      isBookmarked = response != null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -60,16 +135,13 @@ class _DetailresepState extends State<Detailresep> {
     }
 
     List<String> parseStringToList(String? data) {
-      if (data == null || data.isEmpty)
-        return []; 
-      return data
-          .split(',')
-          .map((e) => e.trim())
-          .toList();
+      if (data == null || data.isEmpty) return [];
+      return data.split(',').map((e) => e.trim()).toList();
     }
 
     List<String> ingredientsList = parseStringToList(recipe!['ingredients']);
     List<String> stepsList = parseStringToList(recipe!['steps']);
+    List<String> stepsImages = parseStringToList(recipe!['steps_image']);
 
     return Scaffold(
       backgroundColor: whiteColor,
@@ -93,15 +165,6 @@ class _DetailresepState extends State<Detailresep> {
                       ),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    // child: Column(
-                    //   mainAxisAlignment: MainAxisAlignment.center,
-                    //   children: [
-                    //     const Icon(Icons.image_outlined,
-                    //         size: 40, color: Colors.black54),
-                    //     const SizedBox(height: 8),
-                    //     Text("Recipes photo", style: lightText14),
-                    //   ],
-                    // ),
                   ),
 
                   // Ikon panah ke kiri (
@@ -147,11 +210,7 @@ class _DetailresepState extends State<Detailresep> {
                       isBookmarked ? Icons.bookmark : Icons.bookmark_border,
                       color: backgroundPrimary,
                     ),
-                    onPressed: () {
-                      setState(() {
-                        isBookmarked = !isBookmarked;
-                      });
-                    },
+                    onPressed: toggleBookmark,
                   ),
                 ],
               ),
@@ -168,7 +227,7 @@ class _DetailresepState extends State<Detailresep> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    "Muhammad ibnu",
+                    recipe!['tb_users']['username'],
                     style: mediumText14,
                   ),
                 ],
@@ -253,30 +312,53 @@ class _DetailresepState extends State<Detailresep> {
               ...List.generate(stepsList.length, (index) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Row(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        width: 30,
-                        height: 30,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Text(
-                            "${index + 1}",
-                            style: semiBoldText14,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 30,
+                            height: 30,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: Text(
+                                "${index + 1}",
+                                style: semiBoldText14,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              stepsList[index],
+                              style:
+                                  regularText12.copyWith(color: Colors.black),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8), 
+                      if (index < stepsImages.length &&
+                          stepsImages[index].isNotEmpty)
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            stepsImages[index],
+                            width: double
+                                .infinity, 
+                            height: 180,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(Icons.broken_image,
+                                    size: 100, color: Colors.grey),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          stepsList[index],
-                          style: regularText12.copyWith(color: Colors.black),
-                        ),
-                      ),
+                      const SizedBox(height: 12), 
                     ],
                   ),
                 );

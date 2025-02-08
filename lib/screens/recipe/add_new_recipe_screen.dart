@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uas_flutter/global_components/header_button_component.dart';
 import 'package:uas_flutter/global_components/textfield_component.dart';
+import 'package:uas_flutter/services/user/user_services_implementation.dart';
 import 'package:uas_flutter/themes.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -24,6 +25,8 @@ class _TambahresepState extends State<Tambahresep> {
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController serveController = TextEditingController();
   final TextEditingController timeController = TextEditingController();
+  final UserService = UserServiceImplementation();
+  String? userId;
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -52,10 +55,20 @@ class _TambahresepState extends State<Tambahresep> {
   @override
   void initState() {
     super.initState();
-    ingredientsControllers.add(TextEditingController());
-    stepsControllers.add(TextEditingController());
-    stepImages.add(null);
+     _fetchLoggedUser();
+      ingredientsControllers.add(TextEditingController());
+      stepsControllers.add(TextEditingController());
+      stepImages.add(null);
+   
   }
+
+    void _fetchLoggedUser() {
+      UserService.getUserData().then((user) => {
+            setState(() {
+              userId = user?.id!;
+            })
+          });
+    }
 
   @override
   void dispose() {
@@ -102,6 +115,13 @@ class _TambahresepState extends State<Tambahresep> {
 
   void _publishRecipe() async {
     try {
+      if (userId == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Anda harus login terlebih dahulu!")),
+        );
+        return;
+      }
       final supabase = Supabase.instance.client;
       final title = titleController.text.trim();
       final description = descriptionController.text.trim();
@@ -152,6 +172,7 @@ class _TambahresepState extends State<Tambahresep> {
       }
 
       final response = await supabase.from('tb_recipes').insert({
+        'user_id': userId,
         'title': title,
         'description': description,
         'serve_amount': serveAmount,
@@ -261,12 +282,10 @@ class _TambahresepState extends State<Tambahresep> {
               const SizedBox(height: 8),
               TextField(
                 controller: serveController,
-                keyboardType: TextInputType.number, 
+                keyboardType: TextInputType.number,
                 textInputAction: TextInputAction.done,
                 decoration: const InputDecoration(hintText: "Masukkan serve"),
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly
-                ], 
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               ),
               const SizedBox(height: 20),
 
