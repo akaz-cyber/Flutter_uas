@@ -9,6 +9,7 @@ class RecipeModel {
   final String? description;
   final int serveAmount;
   final String? timeConsumed;
+  final String userId;
 
   RecipeModel({
     required this.id,
@@ -21,6 +22,7 @@ class RecipeModel {
     required this.description,
     required this.serveAmount,
     required this.timeConsumed,
+    required this.userId,
   });
 
   factory RecipeModel.fromJson(Map<String, dynamic> json) {
@@ -35,6 +37,7 @@ class RecipeModel {
       description: json['description'],
       serveAmount: json['serve_amount'],
       timeConsumed: json['time_consumed'],
+      userId: json['user_id'],
     );
   }
 }
