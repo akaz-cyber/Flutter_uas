@@ -4,7 +4,11 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uas_flutter/global_components/recipe_card_item_component.dart';
 import 'package:uas_flutter/global_components/recipe_card_item_bg_component.dart';
 import 'package:uas_flutter/global_components/search_text_field_component.dart';
+import 'package:uas_flutter/models/recipe.model.dart';
+import 'package:uas_flutter/services/recipe/recipe_services_implementation.dart';
+import 'package:uas_flutter/services/user/user_services_implementation.dart';
 import 'package:uas_flutter/themes.dart';
+import 'package:uas_flutter/models/user.model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,43 +20,33 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final logger = Logger();
   final supabase = Supabase.instance.client;
-  User? _user;
-  List<Map<String, dynamic>> _newRecipes = [];
+  UserModel? _user;
+  List<RecipeModel> _newRecipes = [];
   bool _isLoading = true;
-
-  Future<void> _fetchTrendingRecipes() async {
-    try {
-      final response = await supabase
-          .from('tb_recipes')
-          .select('image, title')
-          .order("created_at", ascending: false)
-          .limit(5);
-
-      setState(() {
-        _newRecipes = List<Map<String, dynamic>>.from(response);
-        _isLoading = false;
-        logger.i("Successfully fetched new recipes");
-        logger.i(_newRecipes);
-      });
-    } catch (error) {
-      setState(() {
-        _isLoading = false;
-      });
-      logger.e("Failed to fetch new recipes");
-      logger.e(error.toString());
-    }
-  }
+  final userService = UserServiceImplementation();
+  final recipeService = RecipeServicesImplementation();
 
   @override
   void initState() {
     super.initState();
-    _getUserInfo();
+    _fetchLoggedUser();
     _fetchTrendingRecipes();
   }
 
-  void _getUserInfo() {
+  void _fetchLoggedUser() {
+    userService.getUserData().then((user) => {
+          setState(() {
+            _user = user;
+            _isLoading = false;
+          })
+        });
+  }
+
+  void _fetchTrendingRecipes() async {
+    List<RecipeModel> recipes = await recipeService.fetchNewRecipes();
     setState(() {
-      _user = supabase.auth.currentUser;
+      _newRecipes = recipes;
+      _isLoading = false;
     });
   }
 
@@ -66,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Hello, ${_user?.userMetadata?['full_name'] ?? 'User'}',
+                'Hello, ${_isLoading ? '...' : _user?.username}',
                 style: semiBoldText20,
               ),
               Text(
@@ -76,22 +70,24 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           const SizedBox(width: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: _user?.userMetadata?['avatar_url'] != null
-                ? Image.network(
-                    _user!.userMetadata!['avatar_url'],
-                    width: 45,
-                    height: 45,
-                    fit: BoxFit.cover,
-                  )
-                : Image.asset(
-                    'assets/images/default_profile.jpg',
-                    width: 45,
-                    height: 45,
-                    fit: BoxFit.cover,
-                  ),
-          ),
+          _isLoading
+              ? const CircularProgressIndicator()
+              : ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: _user?.profileImage != null
+                      ? Image.network(
+                          _user!.profileImage!,
+                          width: 45,
+                          height: 45,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.asset(
+                          'assets/images/default_profile.jpg',
+                          width: 45,
+                          height: 45,
+                          fit: BoxFit.cover,
+                        ),
+                ),
         ],
       ),
     );
@@ -120,12 +116,12 @@ class _HomeScreenState extends State<HomeScreen> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemBuilder: (context, index) {
-          final recipe = _newRecipes[index];
+          final newRecipe = _newRecipes[index];
           return InkWell(
             onTap: () {},
             child: NewRecipeCardItem(
-              imageUrl: recipe['image'],
-              title: recipe['title'],
+              imageUrl: newRecipe.image!,
+              title: newRecipe.title!,
               writter: '', // Add writer if available
             ),
           );

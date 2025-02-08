@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:logger/logger.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uas_flutter/global_components/nav_bar_component.dart';
+import 'package:uas_flutter/services/user/user_services_implementation.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
 
   @override
-  _WelcomeScreenState createState() => _WelcomeScreenState();
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
   final supabase = Supabase.instance.client;
+  final logger = Logger();
+  final userService = UserServiceImplementation();
 
   @override
   void initState() {
@@ -29,40 +32,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         );
       }
     });
-  }
-
-  Future<void> _googleSignIn() async {
-    try {
-      const webClientId =
-          '23714171420-0mm7gpf1go1ao8jfp1rqu7kfc6d0iums.apps.googleusercontent.com';
-
-      final GoogleSignIn googleSignIn = GoogleSignIn(
-        serverClientId: webClientId,
-      );
-
-      final googleUser = await googleSignIn.signIn();
-      if (googleUser == null) {
-        throw 'Login dibatalkan oleh user.';
-      }
-
-      final googleAuth = await googleUser.authentication;
-      final accessToken = googleAuth.accessToken;
-      final idToken = googleAuth.idToken;
-
-      if (idToken == null || accessToken == null) {
-        throw 'Gagal mendapatkan token dari Google.';
-      }
-
-      final response = await supabase.auth.signInWithIdToken(
-        provider: OAuthProvider.google,
-        idToken: idToken,
-        accessToken: accessToken,
-      );
-
-      print("Login berhasil: ${response.session}");
-    } catch (error) {
-      print("Error saat login: $error");
-    }
   }
 
   @override
@@ -159,7 +128,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           padding: const EdgeInsets.symmetric(vertical: 15),
         ),
         onPressed: () async {
-          await _googleSignIn();
+          await userService.googleSignIn();
         },
         child: Padding(
           padding: const EdgeInsets.all(8.0),
