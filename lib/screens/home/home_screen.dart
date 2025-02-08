@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uas_flutter/global_components/nav_bar_component.dart';
 import 'package:uas_flutter/global_components/recipe_card_item_component.dart';
 import 'package:uas_flutter/global_components/recipe_card_item_bg_component.dart';
 import 'package:uas_flutter/global_components/search_text_field_component.dart';
@@ -26,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isLoading = true;
   final userService = UserServiceImplementation();
   final recipeService = RecipeServicesImplementation();
+  final TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
@@ -101,8 +103,21 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget searchFieldSection() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 30),
-      child: const SearchTextFieldComponent(
-          hintText: 'Search your favorite recipe'),
+      child: SearchTextFieldComponent(
+        hintText: 'Search your favorite recipe',
+        controller: searchController,
+        callback: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BottomNavbar(
+                routerIndex: 1,
+                keyword: searchController.text,
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 

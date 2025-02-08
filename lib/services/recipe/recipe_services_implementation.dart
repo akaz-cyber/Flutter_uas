@@ -27,4 +27,26 @@ class RecipeServicesImplementation implements RecipeServices {
       return [];
     }
   }
+
+  @override
+  Future<List<RecipeModel>> searchRecipesByKeyword(String keyword) async {
+    try {
+      final response = await supabase
+          .from('tb_recipes')
+          .select('*')
+          .ilike('title', '%$keyword%')
+          .order("created_at", ascending: false);
+
+      logger.i("Successfully fetched new recipes");
+
+      List<RecipeModel> result =
+          List<RecipeModel>.from(response.map((e) => RecipeModel.fromJson(e)));
+
+      return result;
+    } catch (error) {
+      logger.e("Failed to fetch new recipes");
+      logger.e(error.toString());
+      return [];
+    }
+  }
 }

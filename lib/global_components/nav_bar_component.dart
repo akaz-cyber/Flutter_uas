@@ -7,7 +7,9 @@ import 'package:uas_flutter/screens/search/search_recipe_screen.dart';
 import 'package:uas_flutter/themes.dart';
 
 class BottomNavbar extends StatefulWidget {
-  const BottomNavbar({super.key});
+  final int? routerIndex;
+  final String? keyword;
+  const BottomNavbar({super.key, this.routerIndex, this.keyword});
 
   @override
   State<BottomNavbar> createState() => _BottomNavbarState();
@@ -15,13 +17,19 @@ class BottomNavbar extends StatefulWidget {
 
 class _BottomNavbarState extends State<BottomNavbar> {
   int _selectedIndex = 0;
+  late final List<Widget> _screens;
 
-  final _screens = [
-    const HomeScreen(),
-    const SearchRecipeScreen(),
-    const BookmarkedRecipeScreen(),
-    const ProfileScreen()
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.routerIndex ?? 0;
+    _screens = [
+      const HomeScreen(),
+      SearchRecipeScreen(keyword: widget.keyword ?? ''),
+      const BookmarkedRecipeScreen(),
+      const ProfileScreen()
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
