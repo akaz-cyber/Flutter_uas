@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uas_flutter/global_components/header_button_component.dart';
 import 'package:uas_flutter/global_components/textfield_component.dart';
@@ -20,6 +21,9 @@ class _TambahresepState extends State<Tambahresep> {
   List<TextEditingController> ingredientsControllers = [];
   List<TextEditingController> stepsControllers = [];
   final TextEditingController titleController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController serveController = TextEditingController();
+  final TextEditingController timeController = TextEditingController();
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -56,6 +60,9 @@ class _TambahresepState extends State<Tambahresep> {
   @override
   void dispose() {
     titleController.dispose();
+    descriptionController.dispose();
+    serveController.dispose();
+    timeController.dispose();
     for (var controller in ingredientsControllers) {
       controller.dispose();
     }
@@ -97,6 +104,9 @@ class _TambahresepState extends State<Tambahresep> {
     try {
       final supabase = Supabase.instance.client;
       final title = titleController.text.trim();
+      final description = descriptionController.text.trim();
+      final serveAmount = num.tryParse(serveController.text.trim()) ?? 1;
+      final timeConsumed = timeController.text.trim();
       final ingredients = ingredientsControllers
           .map((controller) => controller.text.trim())
           .toList();
@@ -143,6 +153,9 @@ class _TambahresepState extends State<Tambahresep> {
 
       final response = await supabase.from('tb_recipes').insert({
         'title': title,
+        'description': description,
+        'serve_amount': serveAmount,
+        'time_consumed': timeConsumed,
         'image': imageUrl,
         'ingredients': ingredients.join(', '),
         'steps': steps.join(', '),
@@ -225,6 +238,46 @@ class _TambahresepState extends State<Tambahresep> {
                 inputType: TextInputType.text,
                 inputAction: TextInputAction.done,
                 hint: "Masukkan judul",
+              ),
+              const SizedBox(height: 20),
+
+              // Description
+              Text("Description", style: mediumText14),
+              TextField(
+                controller: descriptionController,
+                keyboardType: TextInputType.multiline,
+                textInputAction: TextInputAction.newline,
+                maxLines: 10, // Maksimal 5 baris
+                minLines: 7, // Minimal 3 baris
+                decoration: const InputDecoration(
+                  hintText: "Masukkan deskripsi",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Serve
+              Text("Serve", style: mediumText14),
+              const SizedBox(height: 8),
+              TextField(
+                controller: serveController,
+                keyboardType: TextInputType.number, 
+                textInputAction: TextInputAction.done,
+                decoration: const InputDecoration(hintText: "Masukkan serve"),
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly
+                ], 
+              ),
+              const SizedBox(height: 20),
+
+              // Time consumed
+              Text("Time consumed", style: mediumText14),
+              const SizedBox(height: 8),
+              TextfieldComponent(
+                controller: timeController,
+                inputType: TextInputType.text,
+                inputAction: TextInputAction.done,
+                hint: "Masukkan waktu di buat",
               ),
               const SizedBox(height: 20),
 

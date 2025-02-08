@@ -7,6 +7,7 @@ import 'package:uas_flutter/global_components/search_text_field_component.dart';
 import 'package:uas_flutter/models/recipe.model.dart';
 import 'package:uas_flutter/services/recipe/recipe_services_implementation.dart';
 import 'package:uas_flutter/services/user/user_services_implementation.dart';
+import 'package:uas_flutter/screens/recipe/detail_recipe_screen.dart';
 import 'package:uas_flutter/themes.dart';
 import 'package:uas_flutter/models/user.model.dart';
 
@@ -118,7 +119,14 @@ class _HomeScreenState extends State<HomeScreen> {
         itemBuilder: (context, index) {
           final newRecipe = _newRecipes[index];
           return InkWell(
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Detailresep(recipeId: newRecipe.id),
+                ),
+              );
+            },
             child: NewRecipeCardItem(
               imageUrl: newRecipe.image!,
               title: newRecipe.title!,
