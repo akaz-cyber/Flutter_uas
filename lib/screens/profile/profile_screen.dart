@@ -23,7 +23,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final supabase = Supabase.instance.client;
   final userService = UserServicesImplmpl();
   final recipeService = RecipeServicesImpl();
-  
+
   UserModel? _user;
   Future<List<RecipeModel>>? _recipesFuture; // Ubah jadi nullable
 
@@ -44,17 +44,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     });
   }
-  
-   Future<void> _deleteRecipe(int recipeId) async {
+
+  Future<void> _deleteRecipe(int recipeId) async {
     try {
       await recipeService.deleteRecipe(recipeId);
       // Setelah penghapusan berhasil, muat ulang daftar resep
       _getUserInfo();
     } catch (error) {
       // Tampilkan pesan error jika diperlukan
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal menghapus resep: $error')),
-      );
+      SnackBar(content: Text('Gagal menghapus resep: $error'));
     }
   }
 
@@ -137,7 +135,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 20),
             Expanded(
               child: FutureBuilder<List<RecipeModel>>(
-                future: _recipesFuture ?? Future.value([]), // Tambahkan nilai default
+                future: _recipesFuture ??
+                    Future.value([]), // Tambahkan nilai default
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -147,7 +146,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     return const Center(child: Text('Belum ada resep'));
                   }
                   return GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       crossAxisSpacing: 10,
                       mainAxisSpacing: 10,
@@ -162,11 +162,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => Detailresep(recipeId: recipe.id!),
+                              builder: (context) =>
+                                  Detailresep(recipeId: recipe.id),
                             ),
                           );
                         },
-                         onDelete: () => _deleteRecipe(recipe.id!),
+                        onDelete: () => _deleteRecipe(recipe.id),
                       );
                     },
                   );

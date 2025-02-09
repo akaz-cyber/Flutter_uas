@@ -5,6 +5,7 @@ import 'package:uas_flutter/models/recipe.model.dart';
 import 'package:uas_flutter/models/user.model.dart';
 import 'package:uas_flutter/services/bookmark/bookmark_services_impl.dart';
 import 'package:uas_flutter/services/recipe/recipe_services_impl.dart';
+import 'package:uas_flutter/services/user/user_services_impl.dart';
 import 'package:uas_flutter/themes.dart';
 
 class Detailresep extends StatefulWidget {
@@ -20,11 +21,12 @@ class _DetailresepState extends State<Detailresep> {
   final logger = Logger();
 
   // Services
+  final userService = UserServicesImplmpl();
   final recipeService = RecipeServicesImpl();
   final bookmarkService = BookmarkServicesImpl();
 
   RecipeModel? _detailRecipe;
-  UserModel? _user;
+  UserModel? _loggedUser;
   bool isLoading = true;
   bool isBookmarked = false;
 
@@ -35,18 +37,20 @@ class _DetailresepState extends State<Detailresep> {
   }
 
   Future<void> _toggleBookmark() async {
-    bookmarkService.toggleBookmark(_user!.id!, widget.recipeId);
+    bookmarkService.toggleBookmark(_loggedUser!.id!, widget.recipeId);
     _fetchRecipe();
   }
 
   Future<void> _fetchRecipe() async {
     try {
+      UserModel? user = await userService.getUserData();
+
       RecipeModel? response =
           await recipeService.fetchRecipeById(widget.recipeId);
 
       if (mounted) {
         setState(() {
-          _user = response!.user;
+          _loggedUser = user;
           _detailRecipe = response;
           isLoading = false;
         });
@@ -66,7 +70,7 @@ class _DetailresepState extends State<Detailresep> {
 
   Future<void> checkIfBookmarked() async {
     final response = await bookmarkService.checkIfBookmarked(
-      _user!.id!,
+      _loggedUser!.id!,
       widget.recipeId,
     );
 
