@@ -6,8 +6,8 @@ import 'package:uas_flutter/global_components/recipe_card_item_component.dart';
 import 'package:uas_flutter/global_components/recipe_card_item_bg_component.dart';
 import 'package:uas_flutter/global_components/search_text_field_component.dart';
 import 'package:uas_flutter/models/recipe.model.dart';
-import 'package:uas_flutter/services/recipe/recipe_services_implementation.dart';
-import 'package:uas_flutter/services/user/user_services_implementation.dart';
+import 'package:uas_flutter/services/recipe/recipe_services_impl.dart';
+import 'package:uas_flutter/services/user/user_services_impl.dart';
 import 'package:uas_flutter/screens/recipe/detail_recipe_screen.dart';
 import 'package:uas_flutter/themes.dart';
 import 'package:uas_flutter/models/user.model.dart';
@@ -26,16 +26,28 @@ class _HomeScreenState extends State<HomeScreen> {
   List<RecipeModel> _newRecipes = [];
   List<RecipeModel> _featuredRecipes = [];
   bool _isLoading = true;
-  final userService = UserServiceImplementation();
-  final recipeService = RecipeServicesImplementation();
+  final userService = UserServicesImplmpl();
+  final recipeService = RecipeServicesImpl();
   final TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    // Fetch initial data
     _fetchLoggedUser();
     _fetchTrendingRecipes();
     _fetchFeaturedRecipes();
+
+    // Subscribe to recipe changes
+    recipeService.subscribeToRecipeChanges(() {
+      _fetchTrendingRecipes();
+      _fetchFeaturedRecipes();
+    });
+
+    // Subscribe to user changes
+    userService.subscribeToUserChanges(() {
+      _fetchLoggedUser();
+    });
   }
 
   void _fetchLoggedUser() {

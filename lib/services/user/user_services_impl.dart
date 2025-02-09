@@ -4,7 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uas_flutter/models/user.model.dart';
 import 'package:uas_flutter/services/user/user_services.dart';
 
-class UserServiceImplementation implements UserService {
+class UserServicesImplmpl implements UserService {
   final supabase = Supabase.instance.client;
   final logger = Logger();
 
@@ -66,7 +66,6 @@ class UserServiceImplementation implements UserService {
           .from('tb_users')
           .select('username,bio, email, profile_image, id')
           .eq('email', user!.email!);
-          
 
       logger.i(response);
 
@@ -78,5 +77,20 @@ class UserServiceImplementation implements UserService {
       logger.e(error.toString());
       return null;
     }
+  }
+
+  @override
+  void subscribeToUserChanges(Function callback) {
+    supabase
+        .channel('public:tb_users')
+        .onPostgresChanges(
+            event: PostgresChangeEvent.all,
+            schema: 'public',
+            table: 'tb_users',
+            callback: (payload) {
+              logger.i('Change received: ${payload.toString()}');
+              callback();
+            })
+        .subscribe();
   }
 }

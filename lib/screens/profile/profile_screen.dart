@@ -6,8 +6,8 @@ import 'package:uas_flutter/models/recipe.model.dart';
 import 'package:uas_flutter/models/user.model.dart';
 import 'package:uas_flutter/screens/profile/edit_profile_screen.dart';
 import 'package:uas_flutter/screens/utility/welcome_screen.dart';
-import 'package:uas_flutter/services/user/user_services_implementation.dart';
-import 'package:uas_flutter/services/recipe/recipe_services_implementation.dart';
+import 'package:uas_flutter/services/user/user_services_impl.dart';
+import 'package:uas_flutter/services/recipe/recipe_services_impl.dart';
 import 'package:uas_flutter/themes.dart';
 import 'package:uas_flutter/global_components/recipe_card_component.dart';
 import 'package:uas_flutter/screens/recipe/detail_recipe_screen.dart'; // Import halaman detail resep
@@ -21,8 +21,8 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final supabase = Supabase.instance.client;
-  final userService = UserServiceImplementation();
-  final recipeService = RecipeServicesImplementation();
+  final userService = UserServicesImplmpl();
+  final recipeService = RecipeServicesImpl();
   
   UserModel? _user;
   Future<List<RecipeModel>>? _recipesFuture; // Ubah jadi nullable

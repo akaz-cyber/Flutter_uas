@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uas_flutter/global_components/header_button_component.dart';
 import 'package:uas_flutter/global_components/textfield_component.dart';
-import 'package:uas_flutter/services/user/user_services_implementation.dart';
+import 'package:uas_flutter/services/user/user_services_impl.dart';
 import 'package:uas_flutter/themes.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -25,7 +25,7 @@ class _TambahresepState extends State<Tambahresep> {
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController serveController = TextEditingController();
   final TextEditingController timeController = TextEditingController();
-  final UserService = UserServiceImplementation();
+  final userService = UserServicesImplmpl();
   String? userId;
 
   Future<void> _pickImage() async {
@@ -55,20 +55,25 @@ class _TambahresepState extends State<Tambahresep> {
   @override
   void initState() {
     super.initState();
-     _fetchLoggedUser();
-      ingredientsControllers.add(TextEditingController());
-      stepsControllers.add(TextEditingController());
-      stepImages.add(null);
-   
+
+    // Fetch logged user
+    _fetchLoggedUser();
+
+    // Add initial ingredient and step
+    ingredientsControllers.add(TextEditingController());
+    stepsControllers.add(TextEditingController());
+
+    // Add initial step image
+    stepImages.add(null);
   }
 
-    void _fetchLoggedUser() {
-      UserService.getUserData().then((user) => {
-            setState(() {
-              userId = user?.id!;
-            })
-          });
-    }
+  void _fetchLoggedUser() {
+    userService.getUserData().then((user) => {
+          setState(() {
+            userId = user?.id!;
+          })
+        });
+  }
 
   @override
   void dispose() {

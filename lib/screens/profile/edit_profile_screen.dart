@@ -4,7 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:uas_flutter/global_components/header_button_component.dart';
 import 'package:uas_flutter/global_components/textfield_component.dart';
 import 'package:uas_flutter/models/user.model.dart';
-import 'package:uas_flutter/services/user/user_services_implementation.dart';
+import 'package:uas_flutter/services/user/user_services_impl.dart';
 import 'package:uas_flutter/themes.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -15,7 +15,7 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  final userService = UserServiceImplementation();
+  final userService = UserServicesImplmpl();
   UserModel? _user;
 
   final TextEditingController nameController = TextEditingController();
@@ -36,7 +36,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       setState(() {
         _user = userData;
         nameController.text = _user?.username ?? '';
-        bioController.text = _user?.bio ?? ''; 
+        bioController.text = _user?.bio ?? '';
       });
     }
   }
@@ -137,7 +137,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
             ),
             const SizedBox(height: 20),
-
             TextfieldComponent(
               controller: nameController,
               inputType: TextInputType.text,
@@ -145,7 +144,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               hint: "Enter your name",
             ),
             const SizedBox(height: 20),
-
             TextfieldComponent(
               controller: bioController,
               inputType: TextInputType.text,
@@ -153,7 +151,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               hint: "Enter your bio",
             ),
             const SizedBox(height: 30),
-
             SizedBox(
               width: double.infinity,
               height: 50,

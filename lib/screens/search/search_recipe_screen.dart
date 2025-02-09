@@ -4,7 +4,7 @@ import 'package:uas_flutter/global_components/header_button_component.dart';
 import 'package:uas_flutter/global_components/search_text_field_component.dart';
 import 'package:uas_flutter/models/recipe.model.dart';
 import 'package:uas_flutter/screens/recipe/detail_recipe_screen.dart';
-import 'package:uas_flutter/services/recipe/recipe_services_implementation.dart';
+import 'package:uas_flutter/services/recipe/recipe_services_impl.dart';
 import 'package:uas_flutter/themes.dart';
 
 class SearchRecipeScreen extends StatefulWidget {
@@ -17,7 +17,7 @@ class SearchRecipeScreen extends StatefulWidget {
 }
 
 class _SearchRecipeScreenState extends State<SearchRecipeScreen> {
-  final recipeServices = RecipeServicesImplementation();
+  final recipeServices = RecipeServicesImpl();
   final TextEditingController searchController = TextEditingController();
 
   List<RecipeModel> _filteredRecipes = [];

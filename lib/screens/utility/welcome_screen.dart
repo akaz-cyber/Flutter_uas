@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:logger/logger.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uas_flutter/global_components/nav_bar_component.dart';
-import 'package:uas_flutter/services/user/user_services_implementation.dart';
+import 'package:uas_flutter/services/user/user_services_impl.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -15,7 +15,7 @@ class WelcomeScreen extends StatefulWidget {
 class _WelcomeScreenState extends State<WelcomeScreen> {
   final supabase = Supabase.instance.client;
   final logger = Logger();
-  final userService = UserServiceImplementation();
+  final userService = UserServicesImplmpl();
 
   @override
   void initState() {

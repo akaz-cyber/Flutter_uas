@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uas_flutter/models/recipe.model.dart';
 import 'package:uas_flutter/models/user.model.dart';
-import 'package:uas_flutter/services/user/user_services_implementation.dart';
+import 'package:uas_flutter/services/bookmark/bookmark_services_impl.dart';
+import 'package:uas_flutter/services/recipe/recipe_services_impl.dart';
 import 'package:uas_flutter/themes.dart';
 
 class Detailresep extends StatefulWidget {
@@ -12,119 +15,63 @@ class Detailresep extends StatefulWidget {
 }
 
 class _DetailresepState extends State<Detailresep> {
+  // Initialize Supabase instance
   final supabase = Supabase.instance.client;
-  final UserService = UserServiceImplementation();
+  final logger = Logger();
+
+  // Services
+  final recipeService = RecipeServicesImpl();
+  final bookmarkService = BookmarkServicesImpl();
+
+  RecipeModel? _detailRecipe;
   UserModel? _user;
-  Map<String, dynamic>? recipe;
   bool isLoading = true;
+  bool isBookmarked = false;
 
   @override
   void initState() {
     super.initState();
-    fetchRecipe();
-    _fetchLoggedUser();
+    _fetchRecipe();
   }
 
-//bookmark
-  void _fetchLoggedUser() {
-    UserService.getUserData().then((user) {
-      setState(() {
-        _user = user;
-        isLoading = false;
-      });
-
-      if (_user != null) {
-        checkIfBookmarked(); // Tambahkan ini
-      }
-    });
+  Future<void> _toggleBookmark() async {
+    bookmarkService.toggleBookmark(_user!.id!, widget.recipeId);
+    _fetchRecipe();
   }
 
-//bookmark
-  Future<void> toggleBookmark() async {
-    final userId = _user?.id;
-    if (userId == null) return;
-
-    if (isBookmarked) {
-      await supabase
-          .from('tb_bookmark')
-          .delete()
-          .match({'recipe_id': widget.recipeId, 'user_id': userId});
-    } else {
-      await supabase.from('tb_bookmark').insert({
-        'recipe_id': widget.recipeId,
-        'user_id': userId,
-      });
-    }
-
-    checkIfBookmarked();
-  }
-
-  Future<void> fetchRecipe() async {
+  Future<void> _fetchRecipe() async {
     try {
-      final response = await supabase
-          .from('tb_recipes')
-          .select('*, tb_users(username)')
-          .eq('id', widget.recipeId)
-          .single();
-
-      await supabase.from('tb_recipes').update({
-        'view_count': (response['view_count'] as int) + 1,
-      }).eq('id', widget.recipeId);
-
-      debugPrint("Fetched Recipe: $response");
+      RecipeModel? response =
+          await recipeService.fetchRecipeById(widget.recipeId);
 
       if (mounted) {
         setState(() {
-          recipe = response;
+          _user = response!.user;
+          _detailRecipe = response;
           isLoading = false;
         });
-
-        if (recipe != null && recipe!['user_id'] != null) {
-          fetchRecipeCreator(recipe!['user_id']);
-        }
       }
-    } catch (error, stacktrace) {
-      debugPrint("Error fetching recipe: $error\n$stacktrace");
+
+      await checkIfBookmarked();
+    } catch (error) {
+      logger.e("Failed to fetch recipe with ID: ${widget.recipeId}");
       if (mounted) {
         setState(() {
-          recipe = null;
+          _detailRecipe = null;
           isLoading = false;
         });
       }
     }
   }
 
-  Future<void> fetchRecipeCreator(String userId) async {
-    try {
-      final response =
-          await supabase.from('users').select().eq('id', userId).maybeSingle();
-
-      if (mounted) {
-        setState(() {
-          _user = response != null ? UserModel.fromJson(response) : null;
-        });
-      }
-    } catch (error, stacktrace) {
-      debugPrint("Error fetching creator: $error\n$stacktrace");
-    }
-  }
-
-//bookmark
-  bool isBookmarked = false;
-//book
   Future<void> checkIfBookmarked() async {
-    final userId = _user?.id;
-    if (userId == null) return;
-
-    final response = await supabase
-        .from('tb_bookmark')
-        .select('id')
-        .eq('recipe_id', widget.recipeId)
-        .eq('user_id', userId)
-        .maybeSingle();
+    final response = await bookmarkService.checkIfBookmarked(
+      _user!.id!,
+      widget.recipeId,
+    );
 
     setState(() {
-      isBookmarked = response != null;
+      isBookmarked = response;
     });
   }
 
@@ -134,7 +81,7 @@ class _DetailresepState extends State<Detailresep> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (recipe == null) {
+    if (_detailRecipe == null) {
       return const Center(child: Text("Recipe not found"));
     }
 
@@ -143,9 +90,10 @@ class _DetailresepState extends State<Detailresep> {
       return data.split(',').map((e) => e.trim()).toList();
     }
 
-    List<String> ingredientsList = parseStringToList(recipe!['ingredients']);
-    List<String> stepsList = parseStringToList(recipe!['steps']);
-    List<String> stepsImages = parseStringToList(recipe!['steps_image']);
+    List<String> ingredientsList =
+        parseStringToList(_detailRecipe!.ingredients);
+    List<String> stepsList = parseStringToList(_detailRecipe!.steps);
+    List<String> stepsImages = parseStringToList(_detailRecipe!.stepsImage);
 
     return Scaffold(
       backgroundColor: whiteColor,
@@ -164,7 +112,7 @@ class _DetailresepState extends State<Detailresep> {
                     height: 180,
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                        image: NetworkImage(recipe!['image']),
+                        image: NetworkImage(_detailRecipe!.image!),
                         fit: BoxFit.cover,
                       ),
                       borderRadius: BorderRadius.circular(8),
@@ -194,7 +142,7 @@ class _DetailresepState extends State<Detailresep> {
               const SizedBox(height: 16),
 
               // Judul resep
-              Text(recipe!['title'], style: semiBoldText20),
+              Text(_detailRecipe!.title!, style: semiBoldText20),
 
               const SizedBox(height: 8),
 
@@ -205,17 +153,18 @@ class _DetailresepState extends State<Detailresep> {
                       size: 18, color: Colors.black54),
                   const SizedBox(width: 5),
                   Text(
-                    recipe!['time_consumed'],
+                    _detailRecipe!.timeConsumed!,
                     style: regularText14,
                   ),
                   const Spacer(),
                   IconButton(
-                    icon: Icon(
-                      isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-                      color: backgroundPrimary,
-                    ),
-                    onPressed: toggleBookmark,
-                  ),
+                      icon: Icon(
+                        isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                        color: backgroundPrimary,
+                      ),
+                      onPressed: () {
+                        _toggleBookmark();
+                      }),
                 ],
               ),
 
@@ -231,7 +180,7 @@ class _DetailresepState extends State<Detailresep> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    recipe!['tb_users']['username'],
+                    _detailRecipe!.user!.username!,
                     style: mediumText14,
                   ),
                 ],
@@ -240,7 +189,7 @@ class _DetailresepState extends State<Detailresep> {
               const SizedBox(height: 8),
 
               Text(
-                recipe!['description'],
+                _detailRecipe!.description!,
                 style: regularText12,
               ),
 
@@ -271,7 +220,7 @@ class _DetailresepState extends State<Detailresep> {
                   const Icon(Icons.restaurant, size: 18, color: Colors.black54),
                   const SizedBox(width: 5),
                   Text(
-                    "${recipe!['serve_amount']} serve",
+                    "${_detailRecipe!.serveAmount} serve",
                     style: regularText14,
                   ),
                 ],

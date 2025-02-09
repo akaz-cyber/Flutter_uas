@@ -42,4 +42,20 @@ class RecipeModel {
       user: UserModel.fromJson(json['tb_users']),
     );
   }
+
+  factory RecipeModel.fromBookmarksJson(Map<String, dynamic> json) {
+    return RecipeModel(
+      id: json['tb_recipes']['id'],
+      createdAt: DateTime.parse(json['tb_recipes']['created_at']),
+      image: json['tb_recipes']['image'],
+      title: json['tb_recipes']['title'],
+      ingredients: json['tb_recipes']['ingredients'],
+      steps: json['tb_recipes']['steps'],
+      stepsImage: json['tb_recipes']['steps_image'],
+      description: json['tb_recipes']['description'],
+      serveAmount: json['tb_recipes']['serve_amount'],
+      timeConsumed: json['tb_recipes']['time_consumed'],
+      user: UserModel.fromJson(json['tb_recipes']['tb_users']),
+    );
+  }
 }

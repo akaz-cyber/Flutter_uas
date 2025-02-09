@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uas_flutter/global_components/bookmark_card_recipe.dart';
 import 'package:uas_flutter/global_components/header_button_component.dart';
+import 'package:uas_flutter/models/recipe.model.dart';
 import 'package:uas_flutter/models/user.model.dart';
 import 'package:uas_flutter/screens/recipe/detail_recipe_screen.dart';
-import 'package:uas_flutter/services/user/user_services_implementation.dart';
+import 'package:uas_flutter/services/bookmark/bookmark_services_impl.dart';
+import 'package:uas_flutter/services/recipe/recipe_services_impl.dart';
+import 'package:uas_flutter/services/user/user_services_impl.dart';
 import 'package:uas_flutter/themes.dart';
 
 class BookmarkedRecipeScreen extends StatefulWidget {
@@ -15,52 +19,47 @@ class BookmarkedRecipeScreen extends StatefulWidget {
 }
 
 class _BookmarkedRecipeScreenState extends State<BookmarkedRecipeScreen> {
+  // supabase & logger instance
   final supabase = Supabase.instance.client;
-  final UserService = UserServiceImplementation();
-  UserModel? _user;
-  List<Map<String, dynamic>> bookmarkedRecipes = [];
+  final logger = Logger();
+
+  // services
+  final userService = UserServicesImplmpl();
+  final recipeService = RecipeServicesImpl();
+  final bookmarkService = BookmarkServicesImpl();
+
+  // data
+  List<RecipeModel> bookmarkedRecipes = [];
+
+  // loading state
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _fetchLoggedUser();
-  }
+    _fetchBookmarkedRecipes();
 
-  void _fetchLoggedUser() async {
-    UserService.getUserData().then((user) {
-      setState(() {
-        _user = user;
-      });
-      if (_user != null) {
-        fetchBookmarkedRecipes();
-      }
+    // listen to changes
+    bookmarkService.subscribeToBookmarkRecipeChanges(() {
+      _fetchBookmarkedRecipes();
     });
   }
 
-  Future<void> fetchBookmarkedRecipes() async {
-    if (_user == null) return;
-
+  Future<void> _fetchBookmarkedRecipes() async {
     try {
-      final response = await supabase
-          .from('tb_bookmark')
-          .select('tb_recipes(id, title, image, tb_users(username))')
-          .eq('user_id', _user!.id!);
+      UserModel? user = await userService.getUserData();
+      List<RecipeModel> recipes =
+          await bookmarkService.fetchBookmarkRecipes(user!.id!);
 
       setState(() {
-        bookmarkedRecipes = response.map<Map<String, dynamic>>((data) {
-          final recipe = data['tb_recipes'];
-          return {
-            "id": recipe['id'],
-            "title": recipe['title'],
-            "image": recipe['image'],
-            "author": recipe['tb_users']['username'],
-          };
-        }).toList();
+        bookmarkedRecipes = recipes;
         isLoading = false;
       });
-    } catch (error, stacktrace) {
-      debugPrint("Error fetching bookmarks: $error\n$stacktrace");
+    } catch (error) {
+      const SnackBar(
+        content: Text("Failed to fetch bookmarked recipes"),
+        backgroundColor: Colors.red,
+      );
       setState(() {
         isLoading = false;
       });
@@ -100,15 +99,15 @@ class _BookmarkedRecipeScreenState extends State<BookmarkedRecipeScreen> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => Detailresep(
-                                      recipeId: recipe["id"],
+                                      recipeId: recipe.id,
                                     ),
                                   ),
                                 );
                               },
                               child: RecipeCard(
-                                title: recipe["title"]!,
-                                author: recipe["author"]!,
-                                imageUrl: recipe["image"]!,
+                                title: recipe.title!,
+                                author: recipe.user!.username!,
+                                imageUrl: recipe.image!,
                               ),
                             );
                           },
