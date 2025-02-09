@@ -1,3 +1,7 @@
+// ignore_for_file: deprecated_member_use, duplicate_ignore
+
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logger/logger.dart';
@@ -23,15 +27,24 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     super.initState();
   }
 
+  StreamSubscription? _authSubscription;
+
   void _setupAuthListener() {
-    supabase.auth.onAuthStateChange.listen((data) {
-      final event = data.event;
-      if (event == AuthChangeEvent.signedIn) {
+    _authSubscription = supabase.auth.onAuthStateChange.listen((data) {
+      if (!mounted) return;
+
+      if (data.event == AuthChangeEvent.signedIn) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const BottomNavbar()),
         );
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _authSubscription?.cancel(); // Pastikan listener dihentikan
+    super.dispose();
   }
 
   @override
@@ -63,6 +76,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
+            // ignore: deprecated_member_use
             Colors.black.withOpacity(0.2),
             Colors.black.withOpacity(0.8),
           ],

@@ -31,6 +31,7 @@ class NewRecipeCardItemBG extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
+                // ignore: deprecated_member_use
                 colors: [Colors.black.withOpacity(0.7), Colors.transparent],
               ),
             ),

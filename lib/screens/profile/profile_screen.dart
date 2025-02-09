@@ -40,6 +40,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _getUserInfo() async {
     final userData = await userService.getUserData();
+    if (!mounted) return;
 
     setState(() {
       _user = userData;
@@ -128,13 +129,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onPressed: () async {
                     await supabase.auth.signOut();
                     await GoogleSignIn().signOut();
-                    if (mounted) {
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
-                            builder: (context) => const WelcomeScreen()),
-                        (Route<dynamic> route) => false,
-                      );
-                    }
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted) {
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                              builder: (context) => const WelcomeScreen()),
+                          (Route<dynamic> route) => false,
+                        );
+                      }
+                    });
                   },
                   child: Text(
                     "Logout",
