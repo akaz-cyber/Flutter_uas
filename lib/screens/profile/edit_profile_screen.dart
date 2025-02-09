@@ -56,11 +56,28 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+   // Fungsi untuk menampilkan pesan kesalahan
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message, style: const TextStyle(color: Colors.white)),
+      backgroundColor: Colors.red),
+    );
+  }
+
   // Fungsi untuk mengupdate profil pengguna
   Future<void> _submitProfile() async {
     final name = nameController.text.trim();
     final bio = bioController.text.trim();
     final email = userService.supabase.auth.currentUser?.email;
+
+      if (name.length < 3) {
+      _showError('Username minimal harus 3 karakter');
+      return;
+    }
+    if (bio.length < 3) {
+      _showError('Bio minimal harus 3 karakter');
+      return;
+    }
 
     if (email == null) {
       ScaffoldMessenger.of(context).showSnackBar(
