@@ -177,10 +177,17 @@ class _DetailresepState extends State<Detailresep> {
               // Nama pembuat resep
               Row(
                 children: [
-                  const CircleAvatar(
+                  CircleAvatar(
                     backgroundColor: Colors.grey,
                     radius: 16,
-                    child: Icon(Icons.person, color: Colors.white),
+                    backgroundImage: _detailRecipe!.user != null &&
+                            _detailRecipe!.user!.profileImage != null
+                        ? NetworkImage(_detailRecipe!.user!.profileImage!)
+                        : null,
+                    child: _detailRecipe!.user != null &&
+                            _detailRecipe!.user!.profileImage != null
+                        ? null
+                        : const Icon(Icons.person, color: Colors.white),
                   ),
                   const SizedBox(width: 8),
                   Text(
@@ -197,19 +204,8 @@ class _DetailresepState extends State<Detailresep> {
                 style: regularText12,
               ),
 
-              const SizedBox(height: 8),
-
-              // Link untuk melihat lebih banyak
-              GestureDetector(
-                onTap: () {},
-                child: Text(
-                  "View More",
-                  style: mediumText12.copyWith(color: Colors.blue),
-                ),
-              ),
-
               const SizedBox(height: 20),
-
+              
               // Ingredients Section
               Text(
                 "Ingredients",
