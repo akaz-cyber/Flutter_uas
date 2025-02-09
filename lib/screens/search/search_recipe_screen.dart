@@ -69,7 +69,7 @@ class _SearchRecipeScreenState extends State<SearchRecipeScreen> {
           },
           child: RecipeCard(
             title: recipe.title!,
-            author: "Chef titit",
+            author: recipe.user!.username!,
             imageUrl: recipe.image!,
           ),
         );

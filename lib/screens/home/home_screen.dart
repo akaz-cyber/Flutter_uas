@@ -197,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             child: NewRecipeCardItemBG(
               title: featuredRecipe.title!,
-              author: 'Titit bapa',
+              author: featuredRecipe.user!.username!,
               imageUrl: featuredRecipe.image!,
             ),
           );
