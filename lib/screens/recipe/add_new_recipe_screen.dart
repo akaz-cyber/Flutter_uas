@@ -289,7 +289,7 @@ class _TambahresepState extends State<Tambahresep> {
                 controller: serveController,
                 keyboardType: TextInputType.number,
                 textInputAction: TextInputAction.done,
-                decoration: const InputDecoration(hintText: "Masukkan serve"),
+                decoration: const InputDecoration(hintText: "Disajikan untuk berapa orang"),
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               ),
               const SizedBox(height: 20),
