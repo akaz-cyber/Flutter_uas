@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:logger/logger.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uas_flutter/global_components/header_button_component.dart';
 import 'package:uas_flutter/models/recipe.model.dart';
@@ -12,6 +13,8 @@ import 'package:uas_flutter/themes.dart';
 import 'package:uas_flutter/global_components/recipe_card_component.dart';
 import 'package:uas_flutter/screens/recipe/detail_recipe_screen.dart'; // Import halaman detail resep
 
+final supabase = Supabase.instance.client;
+
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -20,12 +23,14 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final supabase = Supabase.instance.client;
   final userService = UserServicesImplmpl();
   final recipeService = RecipeServicesImpl();
 
+  final logger = Logger();
+
   UserModel? _user;
-  Future<List<RecipeModel>>? _recipesFuture; // Ubah jadi nullable
+  // Future<List<RecipeModel>>? _recipesFuture; // Ubah jadi nullable
+  Stream<List<Map<String, dynamic>>>? _stream;
 
   @override
   void initState() {
@@ -35,12 +40,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _getUserInfo() async {
     final userData = await userService.getUserData();
+
     setState(() {
       _user = userData;
-      if (_user != null && _user!.id != null) {
-        _recipesFuture = recipeService.fetchRecipesByUserId(_user!.id!);
-      } else {
-        _recipesFuture = Future.value([]); // Set daftar kosong jika user null
+      if (_user != null) {
+        _stream = supabase
+            .from('tb_recipes')
+            .stream(primaryKey: ['id'])
+            .eq('user_id', _user!.id!)
+            .order('created_at', ascending: false);
+
+        logger.i("COOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+        if (_stream != null) {
+          logger.i(_stream!.first.toString());
+        }
       }
     });
   }
@@ -134,45 +147,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Text("Your Recipes", style: semiBoldText20),
             const SizedBox(height: 20),
             Expanded(
-              child: FutureBuilder<List<RecipeModel>>(
-                future: _recipesFuture ??
-                    Future.value([]), // Tambahkan nilai default
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return const Center(child: Text('Gagal memuat resep'));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(child: Text('Belum ada resep'));
-                  }
-                  return GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                      childAspectRatio: 1.2,
+              child: _stream == null
+                  ? const Center(child: CircularProgressIndicator())
+                  : StreamBuilder<List<Map<String, dynamic>>>(
+                      stream: _stream,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return const Center(
+                              child: Text('Gagal memuat resep'));
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return const Center(child: Text('Belum ada resep'));
+                        }
+                        final recipes = snapshot.data!
+                            .map(
+                                (data) => RecipeModel.fromJsonWithoutUser(data))
+                            .toList();
+
+                        return GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
+                            childAspectRatio: 1.2,
+                          ),
+                          itemCount: recipes.length,
+                          itemBuilder: (context, index) {
+                            final recipe = recipes[index];
+                            return RecipeCardComponent(
+                              recipe: recipe,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        Detailresep(recipeId: recipe.id),
+                                  ),
+                                );
+                              },
+                              onDelete: () => _deleteRecipe(recipe.id),
+                            );
+                          },
+                        );
+                      },
                     ),
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      final recipe = snapshot.data![index];
-                      return RecipeCardComponent(
-                        recipe: recipe,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  Detailresep(recipeId: recipe.id),
-                            ),
-                          );
-                        },
-                        onDelete: () => _deleteRecipe(recipe.id),
-                      );
-                    },
-                  );
-                },
-              ),
             ),
           ],
         ),

@@ -43,6 +43,22 @@ class RecipeModel {
     );
   }
 
+  factory RecipeModel.fromJsonWithoutUser(Map<String, dynamic> json) {
+    return RecipeModel(
+      id: json['id'].toInt(),
+      createdAt: DateTime.parse(json['created_at']),
+      image: json['image'],
+      title: json['title'],
+      ingredients: json['ingredients'],
+      steps: json['steps'],
+      stepsImage: json['steps_image'],
+      description: json['description'],
+      serveAmount: json['serve_amount'].toInt(),
+      timeConsumed: json['time_consumed'],
+      user: null,
+    );
+  }
+
   factory RecipeModel.fromBookmarksJson(Map<String, dynamic> json) {
     return RecipeModel(
       id: json['tb_recipes']['id'],
