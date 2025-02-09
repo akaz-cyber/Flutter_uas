@@ -408,38 +408,23 @@ class _TambahresepState extends State<Tambahresep> {
 
               const SizedBox(height: 20),
 
-              // Save & Publish Buttons
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {},
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                        side: BorderSide(color: backgroundPrimary),
-                      ),
-                      child: Text("Save",
-                          style: semiBoldText16.copyWith(
-                              color: backgroundPrimary)),
+              // Publish Buttons
+              SizedBox(
+                width: double.infinity, 
+                child: ElevatedButton(
+                  onPressed: _publishRecipe,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: backgroundPrimary,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _publishRecipe,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: backgroundPrimary,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                      ),
-                      child: Text("Publish",
-                          style: semiBoldText16.copyWith(color: whiteColor)),
-                    ),
+                  child: Text(
+                    "Publish",
+                    style: semiBoldText16.copyWith(color: whiteColor),
                   ),
-                ],
+                ),
               ),
             ],
           ),
