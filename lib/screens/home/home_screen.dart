@@ -209,7 +209,9 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             child: NewRecipeCardItemBG(
               title: featuredRecipe.title!,
-              author: featuredRecipe.user!.username!,
+              author: featuredRecipe.user!.username!.length > 15
+                ? '${featuredRecipe.user!.username!.substring(0, 12)}...'
+                : featuredRecipe.user!.username!,
               imageUrl: featuredRecipe.image!,
             ),
           );
@@ -217,7 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
         separatorBuilder: (context, index) {
           return const SizedBox(width: 10);
         },
-        itemCount: 3,
+         itemCount: _featuredRecipes.length.clamp(0, 3),
       ),
     );
   }
