@@ -14,7 +14,10 @@ class UserServicesImplmpl implements UserService {
       const webClientId =
           '23714171420-0mm7gpf1go1ao8jfp1rqu7kfc6d0iums.apps.googleusercontent.com';
 
+          const iosClientId = '23714171420-oiq9kjmdpac859c053mbr75ct49qe0c8.apps.googleusercontent.com';
+
       final GoogleSignIn googleSignIn = GoogleSignIn(
+        clientId: iosClientId,
         serverClientId: webClientId,
       );
 
